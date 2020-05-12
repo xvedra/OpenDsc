@@ -21,7 +21,7 @@ https://github.com/neu-rah/ArduinoMenu
 
 12/05/2020. Presentation
 
-Here another DSC over ESP32-TTGO, a low cost development ftf board whith support for AS5600 and AS5048 encoders.
+Here another DSC over ESP32-TTGO, a low cost development tft board whith support for AS5600 and AS5048 encoders.
 Encoders system can downloaded from:
 
 for Orion XT8:  https://www.thingiverse.com/thing:4221923
