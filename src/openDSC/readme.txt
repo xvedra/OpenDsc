@@ -5,9 +5,9 @@ Board: ESP32 Dev Module
 Partition escheme: No OTA (2 MB APP/2 MB SPIFFS)
 
 ************************************************
-Can connect Wifi and Bluetooh simultaneously
+Can connect Wifi, Bluetooh and USB simultaneously
 ************************************************
-14/05/2020
+** 14/05/2020 **********************************
 Beta Version 1.0.0
 Support AS5600 encoder at 3.3V power supply in 5V input.
 AS5600 module has got pull-ups to 5V and ESP32 is not 5V tolerant.
@@ -20,3 +20,7 @@ Next goals:
  
 1) AS5048 support
 2) Quadrature encoder support
+
+** 15/05/2020 **********************************
+a) Solved resolution bug
+b) Added USB for serial commands
