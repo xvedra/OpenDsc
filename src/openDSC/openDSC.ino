@@ -1233,8 +1233,8 @@ void prepareDrawData1()
    
     //if(isBluetoothSelected())
     {
-      if(isBtConnected()) tft.pushImage(239-27-32-5*2, 0,  27, 32, &BTonoff[_BTonoff_on]); 
-      else tft.pushImage(239-27-32-5*2, 0,  27, 32, &BTonoff[_BTonoff_off]);
+      if(isBtConnected()) tft.pushImage(239-24-32-5*2, 0,  27, 32, &BTonoff[_BTonoff_on]); 
+      else tft.pushImage(239-24-32-5*2, 0,  27, 32, &BTonoff[_BTonoff_off]);
     }
     //if(isWifiSelected())
     {
@@ -1274,8 +1274,8 @@ void drawData1()
   {
     //if(isBluetoothSelected())
     {
-      if(isBtConnected()) tft.pushImage(239-27-32-5*2, 0,  27, 32, &BTonoff[_BTonoff_on]); 
-      else tft.pushImage(239-27-32-5*2, 0,  27, 32, &BTonoff[_BTonoff_off]);
+      if(isBtConnected()) tft.pushImage(239-24-32-5*2, 0,  27, 32, &BTonoff[_BTonoff_on]); 
+      else tft.pushImage(239-24-32-5*2, 0,  27, 32, &BTonoff[_BTonoff_off]);
     }
     //if(isWifiSelected())
     {
@@ -1349,10 +1349,10 @@ void drawData1()
     }  
 */
     #ifdef _VBatt
-    if(i < 2 )    tft.pushImage(239-27-16-32-5*4, 0,  16, 32, &VBatt[_VBatt_VERYLOW]);    
-    else if(i < 4)tft.pushImage(239-27-16-32-5*4, 0,  16, 32, &VBatt[_VBatt_LOW]); 
-    else if(i < 6)tft.pushImage(239-27-16-32-5*4, 0,  16, 32, &VBatt[_VBatt_MIDDLE]); 
-    else          tft.pushImage(239-27-16-32-5*4, 0,  16, 32, &VBatt[_VBatt_HIGH]); 
+    if(i < 2 )    tft.pushImage(239-22-16-32-5*4, 0,  16, 32, &VBatt[_VBatt_VERYLOW]);    
+    else if(i < 4)tft.pushImage(239-22-16-32-5*4, 0,  16, 32, &VBatt[_VBatt_LOW]); 
+    else if(i < 6)tft.pushImage(239-22-16-32-5*4, 0,  16, 32, &VBatt[_VBatt_MIDDLE]); 
+    else          tft.pushImage(239-22-16-32-5*4, 0,  16, 32, &VBatt[_VBatt_HIGH]); 
     #else
 
     #endif
