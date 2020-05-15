@@ -1168,7 +1168,59 @@ static int lastAlt = -1;
 static int lastAz = -1;
 static float lastV = -1.0;
 static int lastCap = -1;
-static time_t TimerDrawData1 = 0;
+static time_t TimerDrawData = 0;
+
+void prepareHead()
+{       
+    lastCap = -1;
+    tft.setCursor(0, 0);
+    tft.setTextDatum(MC_DATUM);    
+    tft.setTextColor(DRAW_TEXT_COLOR2);
+    tft.setTextSize(3);
+    sprintf(buff, "%s", MyConfig.Tele[MyConfig.CurrentMount%MAX_TELESCOPES].Name);
+    tft.drawString(buff, 0, 15);
+
+    if(isBtConnected()) tft.pushImage(239-24-32-5*2, 0,  27, 32, &BTonoff[_BTonoff_on]); 
+    else tft.pushImage(239-24-32-5*2, 0,  27, 32, &BTonoff[_BTonoff_off]);
+
+    if(isWifiConnected()) tft.pushImage(239-27-5, 0,  32, 32, &WIFIonoff[_WIFIonoff_on]); 
+    else tft.pushImage(239-27-5, 0,  32, 32, &WIFIonoff[_WIFIonoff_off]);
+}
+
+void drawHead()
+{
+  if(myConnectEvent != 0)
+  {
+    if(isBtConnected()) tft.pushImage(239-24-32-5*2, 0,  27, 32, &BTonoff[_BTonoff_on]); 
+    else tft.pushImage(239-24-32-5*2, 0,  27, 32, &BTonoff[_BTonoff_off]);
+
+    if(isWifiConnected()) tft.pushImage(239-27-5, 0,  32, 32, &WIFIonoff[_WIFIonoff_on]); 
+    else tft.pushImage(239-27-5, 0,  32, 32, &WIFIonoff[_WIFIonoff_off]);
+  }
+
+  if((millis() % 500) == 0) //1Hz
+  {
+    uint16_t v = analogRead(ADC_PIN);
+    float battery_voltage = ((float)v / 4095.0) * 2.0 * 3.3 * (vref / 1000.0);
+    int output = 8 * ((battery_voltage - battery_min) / (battery_max - battery_min));
+    if(output > 8) output = 8;
+    if(output < 0) output = 0;
+    
+    if(output != lastCap)
+    {
+      lastCap = output;      
+
+      #ifdef _VBatt
+      if(output < 2 )    tft.pushImage(239-22-16-32-5*4, 0,  16, 32, &VBatt[_VBatt_VERYLOW]);    
+      else if(output < 4)tft.pushImage(239-22-16-32-5*4, 0,  16, 32, &VBatt[_VBatt_LOW]); 
+      else if(output < 6)tft.pushImage(239-22-16-32-5*4, 0,  16, 32, &VBatt[_VBatt_MIDDLE]); 
+      else          tft.pushImage(239-22-16-32-5*4, 0,  16, 32, &VBatt[_VBatt_HIGH]); 
+      #else
+  
+      #endif
+    }
+  }
+}
 
 void prepareDrawData1()
 {
@@ -1177,22 +1229,15 @@ void prepareDrawData1()
     #endif
     lastAlt = -1;
     lastAz = -1;
-    lastV = -1.0;
-    lastCap = -1;
-    TimerDrawData1 = InitTimer(1000);
+    lastV = -1.0;    
+    TimerDrawData = InitTimer(1000);
     tft.fillScreen(TFT_BLACK);        
     tft.setCursor(0, 0);
     tft.setTextDatum(MC_DATUM);    
     tft.setTextColor(DRAW_TEXT_COLOR2);
     tft.setTextSize(3);
-    sprintf(buff, "%s", MyConfig.Tele[MyConfig.CurrentMount%MAX_TELESCOPES].Name);
-    tft.drawString(buff, 0, 15);
-    
-    //tft.setTextColor(DRAW_TEXT_COLOR3);
-    //sprintf(buff, "%s", (dsc_GetAltSensor() < 0 || dsc_GetAzSensor() < 0)?"Fail":"Ok");
-    //tft.drawString(buff, 240-50, 15);  
-    //if(dsc_GetAltSensor() < 0 || dsc_GetAzSensor() < 0) tft.pushImage(215-32*1, 0,  32, 32, &ok_fail[_ok_fail_FAIL]);
-    //else tft.pushImage(215-32*1, 0,  32, 32, &ok_fail[_ok_fail_OK]); 
+
+    prepareHead();
 
     if(dsc_GetAzSensor() < 0)
     {
@@ -1230,17 +1275,6 @@ void prepareDrawData1()
     tft.drawString("DEC/ALT:", 5, 25+32*2);
     tft.drawString("BAT:", 5, 25+32*3); 
     tft.setTextSize(3);
-   
-    //if(isBluetoothSelected())
-    {
-      if(isBtConnected()) tft.pushImage(239-24-32-5*2, 0,  27, 32, &BTonoff[_BTonoff_on]); 
-      else tft.pushImage(239-24-32-5*2, 0,  27, 32, &BTonoff[_BTonoff_off]);
-    }
-    //if(isWifiSelected())
-    {
-      if(isWifiConnected()) tft.pushImage(239-27-5, 0,  32, 32, &WIFIonoff[_WIFIonoff_on]); 
-      else tft.pushImage(239-27-5, 0,  32, 32, &WIFIonoff[_WIFIonoff_off]);
-    }
     
 }
 void restoreDrawData1()
@@ -1257,11 +1291,11 @@ void drawData1()
   static unsigned long int LastGetPorReq = 0;
   static unsigned int currentTextColor = 0;   
   
-  if(TimerDrawData1 == 0)
+  if(TimerDrawData == 0)
   {
     for(i = 0; i < GRAPH_MAX_POINTS; i++) data[i] = 0;
     index = 0;
-    TimerDrawData1 = InitTimer(0);
+    TimerDrawData = InitTimer(0);
   }
 
   if(myDwnButtEvent)
@@ -1270,21 +1304,9 @@ void drawData1()
     //here user code:
   }
 
-  if(myConnectEvent != 0)
-  {
-    //if(isBluetoothSelected())
-    {
-      if(isBtConnected()) tft.pushImage(239-24-32-5*2, 0,  27, 32, &BTonoff[_BTonoff_on]); 
-      else tft.pushImage(239-24-32-5*2, 0,  27, 32, &BTonoff[_BTonoff_off]);
-    }
-    //if(isWifiSelected())
-    {
-      if(isWifiConnected()) tft.pushImage(239-27-5, 0,  32, 32, &WIFIonoff[_WIFIonoff_on]); 
-      else tft.pushImage(239-27-5, 0,  32, 32, &WIFIonoff[_WIFIonoff_off]);
-    }
-  }
+  drawHead();
 
-  if(checkTimer(TimerDrawData1, 1000)) TimerDrawData1 = InitTimer(0);
+  if(checkTimer(TimerDrawData, 1000)) TimerDrawData = InitTimer(0);
   else return;
 
   //Request rate:
@@ -1325,38 +1347,9 @@ void drawData1()
     }
     else tft.setTextColor(DRAW_TEXT_COLOR3, TFT_BLACK);
     sprintf(buff, "%01.2fV", battery_voltage);
-    //String voltage = "V:  " + String(battery_voltage) + "V";
-    //tft.fillRect(100, 10+32*3-2, 105, 21, TFT_BLACK);
-    //tft.drawString(voltage, 10, 10 + 30 * 2);
     tft.drawString(buff, 160, 20 + 32 * 3);  
   }
 
-  // Zone D
-  int output = 8 * ((battery_voltage - battery_min) / (battery_max - battery_min));
-  if(output > 8) output = 8;
-  if(output < 0) output = 0;
-  
-  if(output != lastCap)
-  {
-    lastCap = output;      
-/*  
-    tft.fillRect(212, 38, 40, 75, TFT_BLACK);
-    for(i = 8; i >= (8 - output); i--)
-    {
-      if(i < 4) tft.drawRect(213, 38 + i * 5, 40, 3, DRAW_FULL_BATT_COLOR);
-      else if(i < 7) tft.drawRect(213, 38 + i * 5, 40, 3, DRAW_MID_BATT_COLOR);
-      else tft.drawRect(213, 38 + i * 5, 40, 3, DRAW_LOW_BATT_COLOR);
-    }  
-*/
-    #ifdef _VBatt
-    if(i < 2 )    tft.pushImage(239-22-16-32-5*4, 0,  16, 32, &VBatt[_VBatt_VERYLOW]);    
-    else if(i < 4)tft.pushImage(239-22-16-32-5*4, 0,  16, 32, &VBatt[_VBatt_LOW]); 
-    else if(i < 6)tft.pushImage(239-22-16-32-5*4, 0,  16, 32, &VBatt[_VBatt_MIDDLE]); 
-    else          tft.pushImage(239-22-16-32-5*4, 0,  16, 32, &VBatt[_VBatt_HIGH]); 
-    #else
-
-    #endif
-  }
 /*
   // Zone E: Graph
   tft.fillRect(0, 134-50, 240, 50, TFT_BLACK);
