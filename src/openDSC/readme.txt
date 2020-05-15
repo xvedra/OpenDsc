@@ -16,11 +16,14 @@ I will try to solve it soon.
 Quadrature encoder needs 5V power supply and this board has 4.8V connected to USB.
 For Battery use I will add a DcDC boost to solve it. Pull-ups must be attach to 3.3V too!
 
-Next goals:
- 
+Add goals: 
 1) AS5048 support
 2) Quadrature encoder support
 
 ** 15/05/2020 **********************************
 a) Solved resolution bug
 b) Added USB for serial commands
+
+Add goals:
+a) Detect I2C encoders
+b) Demo interface to test clients
