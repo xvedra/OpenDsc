@@ -21,11 +21,13 @@ https://github.com/neu-rah/ArduinoMenu
 
 12/05/2020. Presentation
 
-Here another DSC over ESP32-TTGO, a low cost development tft board whith support for AS5600 and AS5048 encoders.
+Here another DSC over ESP32-TTGO, a low cost development tft board.
 
 Support WiFi and Bluetooth.
 
-Support AS5600 and AS5048 encoders. Quadrature encoders support are coming.
+Support AS5600 and AS5048 encoders. 
+
+Quadrature encoders support are coming.
 
 Demo mode are coming too.
 
