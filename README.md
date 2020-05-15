@@ -23,7 +23,7 @@ https://github.com/neu-rah/ArduinoMenu
 
 Here another DSC over ESP32-TTGO, a low cost development tft board.
 
-Support WiFi and Bluetooth.
+Support WiFi ,Bluetooth and Serial (USB).
 
 Support AS5600 and AS5048 encoders. 
 
@@ -41,3 +41,15 @@ for GSO 10":    https://www.thingiverse.com/thing:4221918
 
 case:           https://www.thingiverse.com/thing:4358327
 
+** 15/05/2020 **********************************
+
+a) Solved resolution bug
+
+b) Added USB for serial commands
+
+
+Add goals:
+
+a) Detect I2C encoders
+
+b) Demo interface to test clients
