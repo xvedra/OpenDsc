@@ -25,7 +25,7 @@ static unsigned long int GetPosReqCtr = 0;
 bool WIFIon = 0;
 bool BTon = 0;
 bool BTConnected = 0;
-
+unsigned long int BAUDRATES[8] = {1200,2400,4800,9600,19200,38400,57600,115200};
 // BT event callback /////////////////////////////
 void BTcallback(esp_spp_cb_event_t event, esp_spp_cb_param_t *param){
   if(event == ESP_SPP_SRV_OPEN_EVT)
@@ -83,8 +83,11 @@ void commandsLoop(void)
     timer2 = InitTimer(0);
   }
   #endif
-  
-  if(BTon) BtProcessCommands();
+
+  #ifndef USE_DEBUG
+  SerialProcessCommands(&Serial);
+  #endif
+  if(BTon) SerialProcessCommands(&SerialBT);
   if(checkTimer(timer1, WIFI_LOOP_T_MS))
   {
     timer1 = InitTimer(0);
@@ -222,8 +225,8 @@ void readLine(char *p, int maxlen)
   
   *s = '\0';
 }
-
-void BtProcessCommands()
+#if(0)
+void SerialProcessCommands()
 {
     char buff[CLIENT_BUFF_LEN];
     char *value;
@@ -440,6 +443,225 @@ void BtProcessCommands()
             break;
     }
 }
+#else
+void SerialProcessCommands(Stream *serial)
+{
+    char buff[CLIENT_BUFF_LEN];
+    char *value;
+    char val;
+    int i, j;
+
+    if(serial->available()) val = serial->read();
+    else return;
+    
+    switch (val) {        
+        case 'Q':
+            // get encoder values
+            GetPosReqCtr++;
+
+            value = EncoderValue(AZ_Pos, true);
+            sprintf(buff, "%s\t", value);
+            value = EncoderValue(ALT_Pos, true);
+            strcat(buff, value);
+            serial->printf("%s\r\n", buff);    
+            
+            /*
+            printEncoderValue(AZ_Pos);
+            serial->print("\t");
+            printEncoderValue(ALT_Pos);
+            serial->print("\r\n");  
+            */          
+            
+            break;
+        case 'Z':
+        case 'R':
+        case 'I':
+            // set resolution
+            long az, alt;
+            
+            readLine(buff, CLIENT_BUFF_LEN-1);
+            //parseSetResolutionCmd(buff);
+
+            if(sscanf(buff, "%ld %ld", &az, &alt) != 2)
+            {
+              #ifdef USE_DEBUG
+              Serial.printf("R/I: Fail arguments != 2\n");
+              #endif
+            }
+            else
+            {
+              AZ_Res = az;
+              ALT_Res = alt;           
+              dsc_SetAltAzRes(ALT_Res, AZ_Res);  
+              if(val = 'Z')serial->print("*");
+              else serial->print("R");
+              #ifdef USE_DEBUG
+              Serial.printf("Z,R/I: Set resolution...done\n");
+              #endif
+            }
+            /*
+            memset(buff, '\0', CLIENT_BUFF_LEN);
+            i = 0;
+            j = 0;
+            // Horrible hack around ESP8266 not having sscanf()
+            if (serial->available()) {
+                serial->read(); // read the space
+            } else {
+                #ifdef USE_DEBUG
+                Serial.printf("short command!\n");
+                #endif
+                return;
+            }
+
+            while (i < 2) {
+                while (serial->available() && serial->peek() != ' ') {
+                    if (serial->peek() != ' ') {
+                        buff[j] = serial->read();
+                        j++;
+                    }
+                }
+                if (i == 0) {
+                    j = 0;
+                    az_value = String(buff).toInt();
+                    #ifdef USE_DEBUG
+                    Serial.printf("AZ = %ld\n", az_value);
+                    #endif
+                    memset(buff, '\0', CLIENT_BUFF_LEN);
+                    serial->read(); // read the space
+                } else {
+                    alt_value = String(buff).toInt();
+                    #ifdef USE_DEBUG
+                    Serial.printf("ALT = %ld\n", alt_value);
+                    #endif
+                }
+                i++;
+            }
+            if (i != 2) {
+                #ifdef USE_DEBUG
+                Serial.printf("Unable to process: R %s\n", buff);
+                #endif
+                return;
+            }
+            AZ_Res = az_value;
+            ALT_Res = alt_value;           
+            dsc_SetAltAzRes(ALT_Res, AZ_Res);      
+            */      
+            break;
+        case 'G':
+        case 'H':               
+        case 'r':  
+            AZ_Res = dsc_GetAzRes();
+            ALT_Res = dsc_GetAltRes();
+            
+            /*
+            printEncoderValue(AZ_Res);
+            serial->print("\t");
+            printEncoderValue(ALT_Res);
+            serial->print("\r\n");  
+            */ 
+
+            value = EncoderValue(AZ_Res, true);
+            sprintf(buff, "%s\t", value);
+            value = EncoderValue(ALT_Res, true);
+            strcat(buff, value);
+            serial->printf("%s\r\n", buff);
+            #ifdef USE_DEBUG
+            Serial.printf("Get Res> Az:%ld\tAlt:%ld\n", AZ_Res, ALT_Res);
+            Serial.printf("Pos> Az:%ld\t%Alt:%ld\n", AZ_Pos, ALT_Pos);
+            #endif
+            break;         
+        case 'T':
+            //Toggle test mode on/off
+
+            //Read Encoders
+            /*
+            printEncoderValue(AZ_Res);
+            serial->print("\t");
+            printEncoderValue(ALT_Res);
+            serial->print("\t00000\r\n");
+            */
+            /*
+            value = EncoderValue(AZ_Res, true);
+            sprintf(buff, "%s\t", value);
+            value = EncoderValue(ALT_Res, true);
+            serial->printf("%s%s\t00000\r\n", buff, value);
+            */           
+            /*
+            // get resolution
+            long az, alt;
+            char az_pos[2], alt_pos[2];
+
+            dsc_GetAltAzRes(&ALT_Res, &AZ_Res);
+            az = abs(AZ_Res);
+            alt = abs(ALT_Res);
+
+            az_pos[1] = alt_pos[1] = '\0';
+            az_pos[0] = az == AZ_Res ? '+' : '-';
+            alt_pos[0] = alt == ALT_Res ? '+' : '-';
+            #ifdef USE_DEBUG
+            Serial.printf("RES: %s%05ld\t%s%05ld\r\n", az_pos, az, alt_pos, alt); 
+            #endif
+            if(val == 'T') serial->printf("%s%05ld\t%s%05ld\t00000\r\n", az_pos, az, alt_pos, alt); 
+            else serial->printf("%s%05ld\t%s%05ld\r\n", az_pos, az, alt_pos, alt); 
+            */
+            break; 
+           
+        case 'V':
+        case 'v':
+            // get version
+            serial->printf("ESP-DSC v%s\r\n", ESP_DSC_VERSION);
+            break;          
+        case 'P':
+            //Get status
+            serial->printf("001\r\n");
+            break;
+        case 'A':
+            beenAligned = 1;
+            break;
+        case 'a':
+            if (beenAligned) serial->print("Y");
+            else serial->print("N");
+            break;
+        case 'q':
+            // error count
+            serial->print("00000\r\n");
+            break;     
+        //USE_EKS......................
+        case 'z': 
+            //Set the encoder resolution
+            byte b1, b2;
+            b1 = serial->read();
+            b2 = serial->read();            
+            ALT_Res = b2*256+b1;          
+            b1 = serial->read();
+            b2 = serial->read();
+            AZ_Res = b2*256+b1;
+            dsc_SetAltAzRes(ALT_Res, AZ_Res);
+            break;           
+        case 'h': 
+            AZ_Res = dsc_GetAzRes();
+            ALT_Res = dsc_GetAltRes();
+            //Report the encoder resolution 
+            printHexEncoderValue(abs(ALT_Res));
+            printHexEncoderValue(abs(AZ_Res));
+            break; 
+        case 'y': 
+            //Report the encoder positions
+            printHexEncoderValue(abs(ALT_Pos));
+            printHexEncoderValue(abs(AZ_Pos));
+            break;
+        case 'p': 
+            //Report the number of encoder errors and reset the counter to zero
+            serial->print("00");
+            break;            
+        default:
+            #ifdef USE_DEBUG
+            Serial.printf("BT.Unknown command: %c\r\n", val);
+            #endif
+            break;
+    }
+}
+#endif
 
 void WifiProcessClient(uint8_t c)
 {
@@ -596,8 +818,8 @@ void GetAutomatically()
     {
       if(GetPosReqCtr >= 12)
       {
-        dsc_SetAlt(abs(RES_ALT_DEF/2));
-        dsc_SetAz(abs(RES_AZ_DEF/2));
+        dsc_SetAlt(abs(dsc_GetAltRes()/2));
+        dsc_SetAz(abs(dsc_GetAzRes()/2));
         dsc_Enable(); 
         stt++;       
         #ifdef USE_DEBUG
@@ -607,8 +829,8 @@ void GetAutomatically()
     }
     else
     {
-        dsc_SetAlt(abs(RES_ALT_DEF/2));
-        dsc_SetAz(abs(RES_AZ_DEF/2));
+        dsc_SetAlt(abs(dsc_GetAltRes()/2));
+        dsc_SetAz(abs(dsc_GetAzRes()/2));
         dsc_Enable(); 
         stt = 0;  
         #ifdef USE_DEBUG
@@ -620,6 +842,12 @@ void GetAutomatically()
     if(!isBtConnected() && !isWifiConnected()) stt = 0;
     break;
   }
+}
+
+void connectUsbSerial(byte index)
+{
+  Serial.flush();
+  Serial.begin(BAUDRATES[index&7]);
 }
 
 bool isBtConnected()

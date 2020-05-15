@@ -76,7 +76,6 @@ When you need to measure battery voltage first set PWR_EN to "1", measure voltag
 
 #define MAX_TELESCOPES 4
 #define BT_NAME_SIZE 8
-#define EEPROM_VERSION 4
 #define EEPROM_ADD 0
 #define DEF_BACKLIGHT 80
 #define DEF_AUTOPOWEROFF 0
@@ -150,20 +149,24 @@ When you need to measure battery voltage first set PWR_EN to "1", measure voltag
 #define White RGB565(255,255,255)
 
 // TelescopeSensorMount //////////////////////
+#define EEPROM_VERSION 1
+// Remember upload EEPROM_VERSION every change in this structure!!!
 typedef struct
 {
-  char Name[9] = "My Mount";
+  char Name[BT_NAME_SIZE+1] = "My Mount";
   byte RA_Az_SensorType = 0;
   byte Dec_Alt_SensorType = 0;
   long int RA_Az_Res = 4096;
   long int Dec_Alt_Res = 4096;  
 } TelescopeSensorMount;
 // Config ////////////////////////////////////
+// Remember upload EEPROM_VERSION every change in this structure!!!
 typedef struct
 {
   byte Version;
   byte Wifi;
   byte Bluetooth;
+  byte USB;
   byte CurrentMount;
   TelescopeSensorMount Tele[MAX_TELESCOPES];
   byte Backlight;
@@ -326,7 +329,7 @@ const int pwmLedChannelTFT = 0;
 //int ledCtrl=LOW; // Initial value for external connected ledCtrl
 //int test=55;
 EEPROM_Config MyConfig;
-//int CurrentSensorMount = 0;
+byte myUsbSerialBaudrateIndex = 0;
 TelescopeSensorMount CurrentSensorMountConfig;
 bool nightMode = 0;
 int AutoPowerOffTimer = 0;
@@ -468,7 +471,7 @@ result Action_chooseRAAzSensor()
   #ifdef USE_DEBUG
   Serial.printf("\n\nAction_chooseRAAzSensor\n");
   #endif
-  MyConfig.Tele[MyConfig.CurrentMount].RA_Az_SensorType = CurrentSensorMountConfig.RA_Az_SensorType;
+  MyConfig.Tele[MyConfig.CurrentMount%MAX_TELESCOPES].RA_Az_SensorType = CurrentSensorMountConfig.RA_Az_SensorType;
   #ifndef USE_SAVE_AT_EXIT_MENU
   uploadEEPROM();
   #endif
@@ -488,7 +491,7 @@ result Action_chooseDecAltSensor()
   #ifdef USE_DEBUG
   Serial.printf("\n\nAction_chooseDecAltSensor\n");
   #endif
-  MyConfig.Tele[MyConfig.CurrentMount].Dec_Alt_SensorType = CurrentSensorMountConfig.Dec_Alt_SensorType;
+  MyConfig.Tele[MyConfig.CurrentMount%MAX_TELESCOPES].Dec_Alt_SensorType = CurrentSensorMountConfig.Dec_Alt_SensorType;
   #ifndef USE_SAVE_AT_EXIT_MENU
   uploadEEPROM();
   #endif
@@ -504,7 +507,7 @@ TOGGLE(CurrentSensorMountConfig.Dec_Alt_SensorType,chooseDecAltSensorMenu,"Rec/A
 );
 
 result Action_subMenuConfig() {  
-  CurrentSensorMountConfig = MyConfig.Tele[MyConfig.CurrentMount];
+  CurrentSensorMountConfig = MyConfig.Tele[MyConfig.CurrentMount%MAX_TELESCOPES];
   sprintf(RAAzBuf,"%c%05d", CurrentSensorMountConfig.RA_Az_Res == abs(CurrentSensorMountConfig.RA_Az_Res)?'+':'-', abs(CurrentSensorMountConfig.RA_Az_Res));
   sprintf(DecAltBuf,"%c%05d", CurrentSensorMountConfig.Dec_Alt_Res == abs(CurrentSensorMountConfig.Dec_Alt_Res)?'+':'-', abs(CurrentSensorMountConfig.Dec_Alt_Res));
 
@@ -528,9 +531,9 @@ result Action_subMenuConfig() {
 }
   
 result Action_subMenuUploadConfig() {  
-  strcpy(MyConfig.Tele[MyConfig.CurrentMount].Name, CurrentSensorMountConfig.Name);  
-  MyConfig.Tele[MyConfig.CurrentMount].RA_Az_Res = atol(RAAzBuf);
-  MyConfig.Tele[MyConfig.CurrentMount].Dec_Alt_Res = atol(DecAltBuf);
+  strncpy(MyConfig.Tele[MyConfig.CurrentMount%MAX_TELESCOPES].Name, CurrentSensorMountConfig.Name, BT_NAME_SIZE);  
+  MyConfig.Tele[MyConfig.CurrentMount%MAX_TELESCOPES].RA_Az_Res = atol(RAAzBuf);
+  MyConfig.Tele[MyConfig.CurrentMount%MAX_TELESCOPES].Dec_Alt_Res = atol(DecAltBuf);
 
   #ifdef USE_DEBUG
   Serial.printf("\nsubMenuUploadConfig: Az:%s:%d\tAlt:%s:%d\n\n", RAAzBuf, atol(RAAzBuf), DecAltBuf, atol(DecAltBuf));
@@ -551,7 +554,7 @@ MENU(subMenuConfig,"Configure telescope",Action_subMenuConfig,enterEvent,noStyle
   ,EXIT("<Back")
 );
 
-// Wireless /////////////////////////////////////////////////
+// Communications /////////////////////////////////////////////////
 TOGGLE(myBtEnable,chooseBluetoothMenu,"Bluetooth:",doNothing,noEvent,noStyle
   ,VALUE("ON",1,doNothing,noEvent)
   ,VALUE("OFF",0,doNothing,noEvent)
@@ -560,6 +563,17 @@ TOGGLE(myWifiEnable,chooseWifiMenu,"WiFi:",doNothing,noEvent,noStyle
   ,VALUE("ON",1,doNothing,noEvent)
   ,VALUE("OFF",0,doNothing,noEvent)
 );
+TOGGLE(myUsbSerialBaudrateIndex,chooseSerialMenu,"Serial:",doNothing,noEvent,noStyle
+  ,VALUE("1200",DEF_BR_1200,doNothing,noEvent)
+  ,VALUE("2400",DEF_BR_2400,doNothing,noEvent)
+  ,VALUE("4800",DEF_BR_4800,doNothing,noEvent)
+  ,VALUE("9600",DEF_BR_9600,doNothing,noEvent)
+  ,VALUE("19200",DEF_BR_19200,doNothing,noEvent)
+  ,VALUE("38400",DEF_BR_38400,doNothing,noEvent)
+  ,VALUE("57600",DEF_BR_57600,doNothing,noEvent)
+  ,VALUE("115200",DEF_BR_115200,doNothing,noEvent)
+);
+
 
 // Restore //////////////////////////////////////////////////
 result Action_Restore()
@@ -586,6 +600,9 @@ MENU(mainMenu,"OpenDSC menu",doNothing,noEvent,wrapStyle
   ,SUBMENU(subMenuConfig) 
   ,SUBMENU(chooseBluetoothMenu)
   ,SUBMENU(chooseWifiMenu)
+  #ifndef USE_DEBUG
+  ,SUBMENU(chooseSerialMenu)
+  #endif
   ,SUBMENU(setBacklight)
   ,SUBMENU(setAutoPowerOff)  
   ,OP(ESP_DSC_BT_NAME,doNothing,noEvent)  
@@ -776,18 +793,35 @@ void loadDefEEPROM()
   Serial.print("Loading default config...\n");
   #endif
   MyConfig.Version = EEPROM_VERSION;
-  MyConfig.CurrentMount = 0;
+  MyConfig.CurrentMount = DEF_CURRENT_MOUNT;
   MyConfig.Wifi = DEF_WIFI;
   MyConfig.Bluetooth = DEF_BT;
-  for(int i = 0; i < MAX_TELESCOPES; i++)
-  {
-      if(i == 0) sprintf(MyConfig.Tele[i].Name,"GSO 10");        
-      else sprintf(MyConfig.Tele[i].Name,"Mount %d", i + 1); 
-      MyConfig.Tele[i].RA_Az_SensorType = ST_AS5600;
-      MyConfig.Tele[i].Dec_Alt_SensorType = ST_AS5600;
-      MyConfig.Tele[i].RA_Az_Res = DEF_AZ_RES;
-      MyConfig.Tele[i].Dec_Alt_Res = DEF_ALT_RES;
-  }
+  MyConfig.USB = DEF_USB_SERIAL_BAUDRATE;  
+
+  strncpy(MyConfig.Tele[0].Name,DEF_NAME1, BT_NAME_SIZE);      
+  MyConfig.Tele[0].RA_Az_SensorType = DEF_AZ_ENC1;
+  MyConfig.Tele[0].Dec_Alt_SensorType = DEF_ALT_ENC1;
+  MyConfig.Tele[0].RA_Az_Res = DEF_AZ_RES1;
+  MyConfig.Tele[0].Dec_Alt_Res = DEF_ALT_RES1;
+
+  strncpy(MyConfig.Tele[1].Name,DEF_NAME2, BT_NAME_SIZE);     
+  MyConfig.Tele[1].RA_Az_SensorType = DEF_AZ_ENC2;
+  MyConfig.Tele[1].Dec_Alt_SensorType = DEF_ALT_ENC2;
+  MyConfig.Tele[1].RA_Az_Res = DEF_AZ_RES2;
+  MyConfig.Tele[1].Dec_Alt_Res = DEF_ALT_RES2;
+
+  strncpy(MyConfig.Tele[2].Name,DEF_NAME3, BT_NAME_SIZE);     
+  MyConfig.Tele[2].RA_Az_SensorType = DEF_AZ_ENC3;
+  MyConfig.Tele[2].Dec_Alt_SensorType = DEF_ALT_ENC3;
+  MyConfig.Tele[2].RA_Az_Res = DEF_AZ_RES3;
+  MyConfig.Tele[2].Dec_Alt_Res = DEF_ALT_RES3;
+
+  strncpy(MyConfig.Tele[3].Name,DEF_NAME4, BT_NAME_SIZE);    
+  MyConfig.Tele[3].RA_Az_SensorType = DEF_AZ_ENC4;
+  MyConfig.Tele[3].Dec_Alt_SensorType = DEF_ALT_ENC4;
+  MyConfig.Tele[3].RA_Az_Res = DEF_AZ_RES4;
+  MyConfig.Tele[3].Dec_Alt_Res = DEF_ALT_RES4;
+
   MyConfig.AutoPowerOff = DEF_AUTOPOWEROFF;
   MyConfig.Backlight = DEF_BACKLIGHT;
 }
@@ -866,12 +900,12 @@ void AutoPowerOffLoop()
 
 void updateEncoders()
 {
-  dsc_SetAltSensor(MyConfig.Tele[MyConfig.CurrentMount].Dec_Alt_SensorType);
-  dsc_SetAzSensor(MyConfig.Tele[MyConfig.CurrentMount].RA_Az_SensorType);
-  dsc_SetAltRes(MyConfig.Tele[MyConfig.CurrentMount].Dec_Alt_Res);
-  dsc_SetAzRes(MyConfig.Tele[MyConfig.CurrentMount].RA_Az_Res);  
-  dsc_SetAlt(abs(MyConfig.Tele[MyConfig.CurrentMount].Dec_Alt_Res)/2);
-  dsc_SetAz(abs(MyConfig.Tele[MyConfig.CurrentMount].RA_Az_Res)/2);
+  dsc_SetAltSensor(MyConfig.Tele[MyConfig.CurrentMount%MAX_TELESCOPES].Dec_Alt_SensorType);
+  dsc_SetAzSensor(MyConfig.Tele[MyConfig.CurrentMount%MAX_TELESCOPES].RA_Az_SensorType);
+  dsc_SetAltRes(MyConfig.Tele[MyConfig.CurrentMount%MAX_TELESCOPES].Dec_Alt_Res);
+  dsc_SetAzRes(MyConfig.Tele[MyConfig.CurrentMount%MAX_TELESCOPES].RA_Az_Res);  
+  dsc_SetAlt(abs(MyConfig.Tele[MyConfig.CurrentMount%MAX_TELESCOPES].Dec_Alt_Res)/2);
+  dsc_SetAz(abs(MyConfig.Tele[MyConfig.CurrentMount%MAX_TELESCOPES].RA_Az_Res)/2);
 }
 
   
@@ -880,7 +914,13 @@ void myConnectedLoop()
   static int lastConnectedEvent = 0;
   int newConnectedEvent = 0;
   static time_t timer = 0;
-
+  
+  if(myUsbSerialBaudrateIndex != MyConfig.USB)
+  {
+    MyConfig.USB = myUsbSerialBaudrateIndex;
+    uploadEEPROM();
+    connectUsbSerial(myUsbSerialBaudrateIndex);
+  }
   
   if(myBtEnable && !MyConfig.Bluetooth)
   {
@@ -929,7 +969,11 @@ void myConnectedLoop()
     mainMenu[1].enable();
     mainMenu[2].enable();    
     mainMenu[3].enable(); 
+    #ifdef USE_DEBUG
     mainMenu[11].enable();
+    #else
+    mainMenu[12].enable();
+    #endif
   }
   if(isBtConnected() || isWifiConnected())
   {
@@ -938,84 +982,22 @@ void myConnectedLoop()
     mainMenu[1].disable();
     mainMenu[2].disable();
     mainMenu[3].disable();
+    #ifdef USE_DEBUG
     mainMenu[11].disable();
+    #else
+    mainMenu[12].enable();
+    #endif
   }
 }
 
 void setup()
 {
+  extern unsigned long int BAUDRATES[];
+  char buf[48];
   pinMode(ADC_EN, OUTPUT);
   //digitalWrite(ADC_EN, HIGH);
   digitalWrite(ADC_EN, LOW);
   EEPROM.begin(EEPROM_SIZE);   
-  Serial.begin(115200);
- 
-  nav.idleTask=idle;//point a function to be used when menu is suspended
-
-  if(checkVersionEEPROM())
-  {
-    #ifdef USE_DEBUG
-    Serial.printf("Config: %d\n", EEPROM_VERSION);
-    #endif
-    loadEEPROM();
-  }
-  else
-  {
-    #ifdef USE_DEBUG
-    Serial.printf("New Config to %d\n", EEPROM_VERSION);
-    #endif
-    loadDefEEPROM();
-  }
-  #ifndef USE_SAVE_AT_EXIT_MENU
-  uploadEEPROM();
-  #endif
-
-
-  
-  dsc_SetAltSensor(MyConfig.Tele[MyConfig.CurrentMount].Dec_Alt_SensorType);
-  dsc_SetAzSensor(MyConfig.Tele[MyConfig.CurrentMount].RA_Az_SensorType);
-  
-  dsc_SetAltRes(MyConfig.Tele[MyConfig.CurrentMount].Dec_Alt_Res);
-  dsc_SetAzRes(MyConfig.Tele[MyConfig.CurrentMount].RA_Az_Res);  
-  
-  dsc_SetAlt(abs(MyConfig.Tele[MyConfig.CurrentMount].Dec_Alt_Res)/2);
-  dsc_SetAz(abs(MyConfig.Tele[MyConfig.CurrentMount].RA_Az_Res)/2);
-  
-  dsc_Init();
-  dsc_Enable();
-
-  // Bluetooth /////////////
-  if(MyConfig.Bluetooth)
-  {
-    connectBluetooth();
-    myBtEnable = 1;
-  }
-  else
-  {
-    disconnectBluetooth();
-    myBtEnable = 0;
-  }
-
-  // WiFi ////////////////
-  if(MyConfig.Wifi)
-  {
-    connectWIFI();
-    myWifiEnable = 1;
-  }
-  else
-  {
-    disconnectWIFI();
-    myWifiEnable = 0;
-  }
-
-  commandsInit();
-  #ifdef USE_DEBUG
-  Serial.printf("\nCurrent Config:\n");
-  Serial.printf("Mount: %d\t%s\n", MyConfig.CurrentMount, MyConfig.Tele[MyConfig.CurrentMount].Name);
-  Serial.printf("Sensors: Dec_Alt:%d\tRA_Az:%d\n", MyConfig.Tele[MyConfig.CurrentMount].Dec_Alt_SensorType, MyConfig.Tele[MyConfig.CurrentMount].RA_Az_SensorType);
-  Serial.printf("Res: Dec_Alt:%d\tRA_Az:%d\n", MyConfig.Tele[MyConfig.CurrentMount].Dec_Alt_Res, MyConfig.Tele[MyConfig.CurrentMount].RA_Az_Res);
-  Serial.printf("Pos: Dec_Alt:%d\tRA_Az:%d\n\n", dsc_GetAlt(), dsc_GetAz());
-  #endif
 
 /*
   if (TFT_BL > 0) { // TFT_BL has been set in the TFT_eSPI library in the User Setup file TTGO_T_Display.h
@@ -1029,13 +1011,131 @@ void setup()
   ledcSetup(pwmLedChannelTFT, pwmFreq, pwmResolution);
   ledcAttachPin(TFT_BL, pwmLedChannelTFT);
   ledcWrite(pwmLedChannelTFT, 0);
-
   tft.init();
   tft.setRotation(1);
   tft.fillScreen(TFT_BLACK);
   tft.setCursor(0, 0);      
   tft.setSwapBytes(true);  
+  tft.setTextSize(2);
+  tft.setTextWrap(false);
+
+  // End of tft config ////////////////////////////
+  delay(500);
+  tft.setTextColor(TFT_RED);    
+  ledcWrite(pwmLedChannelTFT, 100);
+  if(checkVersionEEPROM())
+  {
+    #ifdef USE_DEBUG
+    Serial.printf("Config: %d\n", EEPROM_VERSION);
+    #endif    
+    loadEEPROM();
+    tft.drawString("EEPROM loaded", 5, 24*0);
+  }
+  else
+  {
+    #ifdef USE_DEBUG
+    Serial.printf("New Config to %d\n", EEPROM_VERSION);
+    #endif
+    loadDefEEPROM();
+    tft.drawString("Def EEPROM loaded", 5, 24*0);
+  }
+  uploadEEPROM();
+  delay(500);
+  
+  dsc_SetAltSensor(MyConfig.Tele[MyConfig.CurrentMount%MAX_TELESCOPES].Dec_Alt_SensorType);
+  dsc_SetAzSensor(MyConfig.Tele[MyConfig.CurrentMount%MAX_TELESCOPES].RA_Az_SensorType);
+  
+  dsc_SetAltRes(MyConfig.Tele[MyConfig.CurrentMount%MAX_TELESCOPES].Dec_Alt_Res);
+  dsc_SetAzRes(MyConfig.Tele[MyConfig.CurrentMount%MAX_TELESCOPES].RA_Az_Res);  
+  
+  dsc_SetAlt(abs(MyConfig.Tele[MyConfig.CurrentMount%MAX_TELESCOPES].Dec_Alt_Res)/2);
+  dsc_SetAz(abs(MyConfig.Tele[MyConfig.CurrentMount%MAX_TELESCOPES].RA_Az_Res)/2);
+
+  sprintf(buf, "Mount %d: %s", MyConfig.CurrentMount%MAX_TELESCOPES, MyConfig.Tele[MyConfig.CurrentMount%MAX_TELESCOPES].Name);
+  tft.drawString(buf, 5, 24*1);
+  delay(500);
+  sprintf(buf, "Az Res: %ld", MyConfig.Tele[MyConfig.CurrentMount%MAX_TELESCOPES].RA_Az_Res);
+  tft.drawString(buf, 5, 24*2);
+  delay(500);
+  sprintf(buf, "Alt Res: %ld", MyConfig.Tele[MyConfig.CurrentMount%MAX_TELESCOPES].Dec_Alt_Res);
+  tft.drawString(buf, 5, 24*3);
+  delay(500);
+  
+  dsc_Init();
+  dsc_Enable();
+
+  delay(2000);
+  tft.fillScreen(TFT_BLACK);
+  #ifdef USE_DEBUG
+  tft.drawString("DEBUG ON", 5, 24*0);
+  #else
+  tft.drawString("DEBUG OFF", 5, 24*0);
+  #endif
+  delay(500);
+
+  tft.drawString("Opening Serial...", 5, 24*1);
+  myUsbSerialBaudrateIndex = MyConfig.USB;
+  #ifdef USE_DEBUG
+  Serial.begin(BAUDRATE_DEBUG);
+  #else
+  connectUsbSerial(MyConfig.USB);
+  #endif
+  sprintf(buf, "done: %d", BAUDRATES[myUsbSerialBaudrateIndex]);
+  tft.drawString(buf, 5, 24*2);
+  delay(500);
+  
+  // Bluetooth /////////////
+  if(MyConfig.Bluetooth)
+  {
+    tft.drawString("Connect BT...", 5, 24*3);
+    connectBluetooth();
+    myBtEnable = 1;
+    tft.drawString("done", 239-24*2, 24*3);
+  }
+  else
+  {    
+    //disconnectBluetooth();
+    myBtEnable = 0;
+    tft.drawString("Disconnect BT", 5, 24*3);
+  }  
+  delay(500);
+
+  // WiFi ////////////////
+  if(MyConfig.Wifi)
+  {
+    tft.drawString("Connect WiFi...", 5, 24*4);
+    connectWIFI();
+    myWifiEnable = 1;
+    tft.drawString("done", 239-24*2, 24*4);
+  }
+  else
+  {
+    //disconnectWIFI();
+    myWifiEnable = 0;
+    tft.drawString("Disconnect WiFi", 5, 24*4);
+  }
+  delay(1000);
+  tft.fillScreen(TFT_BLACK);
+  tft.drawString("Wellcome!", 5, 31*0);
+  tft.drawString("openDSC", 5, 31*1);
+  tft.drawString(ESP_DSC_VERSION, 5, 31*2);  
+  tft.drawString("by xvedra, 2020", 5, 31*3);
+  delay(2000);
+  tft.fillScreen(TFT_BLACK);
+  
+  commandsInit();
+  #ifdef USE_DEBUG
+  Serial.printf("\nCurrent Config:\n");
+  Serial.printf("Mount: %d\t%s\n", MyConfig.CurrentMount, MyConfig.Tele[MyConfig.CurrentMount%MAX_TELESCOPES].Name);
+  Serial.printf("Sensors: Dec_Alt:%d\tRA_Az:%d\n", MyConfig.Tele[MyConfig.CurrentMount%MAX_TELESCOPES].Dec_Alt_SensorType, MyConfig.Tele[MyConfig.CurrentMount%MAX_TELESCOPES].RA_Az_SensorType);
+  Serial.printf("Res: Dec_Alt:%d\tRA_Az:%d\n", MyConfig.Tele[MyConfig.CurrentMount%MAX_TELESCOPES].Dec_Alt_Res, MyConfig.Tele[MyConfig.CurrentMount%MAX_TELESCOPES].RA_Az_Res);
+  Serial.printf("Pos: Dec_Alt:%d\tRA_Az:%d\n\n", dsc_GetAlt(), dsc_GetAz());
+  #endif
+
+  // Lets go... ////////////////////////////////////
+  
   button_init();
+  ledcWrite(pwmLedChannelTFT, 0);  
   #ifdef _OpenDSClogo
   tft.pushImage(52, 0,  135, 135, OpenDSClogo);
   #endif
@@ -1046,11 +1146,9 @@ void setup()
   ledcWrite(pwmLedChannelTFT, 0);
   tft.fillScreen(TFT_BLACK);
   delay(100);
-  ledcWrite(pwmLedChannelTFT, (int)MyConfig.Backlight*255/100);
-  
-  tft.setTextSize(2);
-  tft.setTextWrap(false);
+  ledcWrite(pwmLedChannelTFT, (int)MyConfig.Backlight*255/100);  
   tft.fillScreen(Black);
+  nav.idleTask=idle;//point a function to be used when menu is suspended
   nav.idleOn(idle);
   isIdle = 1;
 }
@@ -1087,7 +1185,7 @@ void prepareDrawData1()
     tft.setTextDatum(MC_DATUM);    
     tft.setTextColor(DRAW_TEXT_COLOR2);
     tft.setTextSize(3);
-    sprintf(buff, "%s", MyConfig.Tele[MyConfig.CurrentMount].Name);
+    sprintf(buff, "%s", MyConfig.Tele[MyConfig.CurrentMount%MAX_TELESCOPES].Name);
     tft.drawString(buff, 0, 15);
     
     //tft.setTextColor(DRAW_TEXT_COLOR3);

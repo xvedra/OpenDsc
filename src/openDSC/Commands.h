@@ -16,7 +16,7 @@
 // Prototypes ////////////////////////////////////
 void commandsInit(void);
 void commandsLoop(void);
-void BtProcessCommands();
+void SerialProcessCommands(Stream *serial);
 void WifiProcessClient(uint8_t c);
 void readLine(char *p, int maxlen);
 void printEncoderValue(long val);
@@ -24,6 +24,7 @@ void printHexEncoderValue(long val);
 void parseSetResolutionCmd(char *cmd);
 void parseEkSetResolutionCmd();
 unsigned long int ReadGetPosReqCtr();
+void connectUsbSerial(byte index);
 bool isBtConnected();
 void GetAutomatically();
 void connectBluetooth();
