@@ -75,6 +75,23 @@ bool isIdle = 0;
 int wirelessStatus = 0;
 WirelessStatus myWirelessStatus;
 //////////////////////////////////////////////////////////////////////
+// MENU SETUP ////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+serialIn serial(Serial);
+//MENU_INPUTS(in,&serial);its single, no need to `chainStream`
+//define serial output device
+idx_t serialTops[MAX_DEPTH]={0};
+serialOut outSerial(Serial,serialTops);
+constMEM panel panels[] MEMMODE = {{0, 0, GFX_WIDTH / fontW, GFX_HEIGHT / fontH}};
+navNode* nodes[sizeof(panels) / sizeof(panel)]; //navNodes to store navigation status
+panelsList pList(panels, nodes, 1); //a list of panels and nodes
+idx_t eSpiTops[MAX_DEPTH]={0};
+TFT_eSPIOut eSpiOut(tft,colors,eSpiTops,pList,fontW,fontH+1);
+//TFT_eSPIOut eSpiOut(tft,nightColors,eSpiTops,pList,fontW,fontH+1);
+menuOut* constMEM outputs[] MEMMODE={&outSerial,&eSpiOut};//list of output devices
+outputsList out(outputs,sizeof(outputs)/sizeof(menuOut*));//outputs list controller
+//config myOptions('*','-',defaultNavCodes,true);
+//////////////////////////////////////////////////////////////////////
 // EDIT MENU  ////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 
@@ -285,11 +302,20 @@ result Action_Restore()
   #ifdef USE_DEBUG
   Serial.printf("\n\nAction Restore..."); 
   #endif
+  //loadPartialDefEEPROM();
   loadDefEEPROM();
   uploadEEPROM();
-  updateEncoders();
+  //updateEncoders();
+  eSpiOut.clear();
+  eSpiOut.println("\nReset...\n");
+  for(int i = 0; i < 20; i++)
+  {
+    eSpiOut.print("*");
+    delay(200);
+  }
+  ESP.restart();
   #ifdef USE_DEBUG
-  Serial.printf("done\n");
+  //Serial.printf("done\n");
   #endif
   return quit;
 }
@@ -319,24 +345,9 @@ MENU(mainMenu,"OpenDSC menu",doNothing,noEvent,wrapStyle
 );
 
 //////////////////////////////////////////////////////////////////////
-// MENU SETUP ////////////////////////////////////////////////////////
+// MENU //////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
-serialIn serial(Serial);
-//MENU_INPUTS(in,&serial);its single, no need to `chainStream`
-//define serial output device
-idx_t serialTops[MAX_DEPTH]={0};
-serialOut outSerial(Serial,serialTops);
-constMEM panel panels[] MEMMODE = {{0, 0, GFX_WIDTH / fontW, GFX_HEIGHT / fontH}};
-navNode* nodes[sizeof(panels) / sizeof(panel)]; //navNodes to store navigation status
-panelsList pList(panels, nodes, 1); //a list of panels and nodes
-idx_t eSpiTops[MAX_DEPTH]={0};
-TFT_eSPIOut eSpiOut(tft,colors,eSpiTops,pList,fontW,fontH+1);
-//TFT_eSPIOut eSpiOut(tft,nightColors,eSpiTops,pList,fontW,fontH+1);
-menuOut* constMEM outputs[] MEMMODE={&outSerial,&eSpiOut};//list of output devices
-outputsList out(outputs,sizeof(outputs)/sizeof(menuOut*));//outputs list controller
 NAVROOT(nav,mainMenu,MAX_DEPTH,serial,out);
-//config myOptions('*','-',defaultNavCodes,true);
-
 //////////////////////////////////////////////////////////////////////
 // IDLE HOOK /////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////

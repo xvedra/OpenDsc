@@ -35,10 +35,53 @@ void uploadEEPROM()
 
   eventsPutFifo(EVENT_SAVE_DATA);
 }
+
 void loadDefEEPROM()
 {
   #ifdef USE_DEBUG
   Serial.print("Loading default config...\n");
+  #endif
+  MyConfig.Version = EEPROM_VERSION;
+  MyConfig.CurrentMount = DEF_CURRENT_MOUNT;
+
+  MyConfig.WiFi = DEF_WIFI;
+  MyConfig.Bluetooth = DEF_BT;
+  MyConfig.USB = DEF_USB_SERIAL_BAUDRATE; 
+
+  strncpy(MyConfig.Tele[0].Name,DEF_NAME1, BT_NAME_SIZE);      
+  MyConfig.Tele[0].RA_Az_SensorType = DEF_AZ_ENC1;
+  MyConfig.Tele[0].Dec_Alt_SensorType = DEF_ALT_ENC1;
+  MyConfig.Tele[0].RA_Az_Res = DEF_AZ_RES1;
+  MyConfig.Tele[0].Dec_Alt_Res = DEF_ALT_RES1;
+
+  strncpy(MyConfig.Tele[1].Name,DEF_NAME2, BT_NAME_SIZE);     
+  MyConfig.Tele[1].RA_Az_SensorType = DEF_AZ_ENC2;
+  MyConfig.Tele[1].Dec_Alt_SensorType = DEF_ALT_ENC2;
+  MyConfig.Tele[1].RA_Az_Res = DEF_AZ_RES2;
+  MyConfig.Tele[1].Dec_Alt_Res = DEF_ALT_RES2;
+
+  strncpy(MyConfig.Tele[2].Name,DEF_NAME3, BT_NAME_SIZE);     
+  MyConfig.Tele[2].RA_Az_SensorType = DEF_AZ_ENC3;
+  MyConfig.Tele[2].Dec_Alt_SensorType = DEF_ALT_ENC3;
+  MyConfig.Tele[2].RA_Az_Res = DEF_AZ_RES3;
+  MyConfig.Tele[2].Dec_Alt_Res = DEF_ALT_RES3;
+
+  strncpy(MyConfig.Tele[3].Name,DEF_NAME4, BT_NAME_SIZE);    
+  MyConfig.Tele[3].RA_Az_SensorType = DEF_AZ_ENC4;
+  MyConfig.Tele[3].Dec_Alt_SensorType = DEF_ALT_ENC4;
+  MyConfig.Tele[3].RA_Az_Res = DEF_AZ_RES4;
+  MyConfig.Tele[3].Dec_Alt_Res = DEF_ALT_RES4;
+
+  MyConfig.AutoPowerOff = DEF_AUTOPOWEROFF;
+  MyConfig.Backlight = DEF_BACKLIGHT;
+
+  eventsPutFifo(EVENT_RESTORE_DATA);
+}
+
+void loadPartialDefEEPROM()
+{
+  #ifdef USE_DEBUG
+  Serial.print("Loading partial default config...\n");
   #endif
   MyConfig.Version = EEPROM_VERSION;
   MyConfig.CurrentMount = DEF_CURRENT_MOUNT;
