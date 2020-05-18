@@ -8,7 +8,7 @@
 //#define USE_DEBUG //Comment to enable communications over USB
 #define SLOW_BOOT 1 //1:slow 0:fast
 // USB Serial ///////////////////////////////////
-#define BAUDRATE_DEBUG_INDEX 7
+#define BAUDRATE_DEBUG 115200
 
 // Bluetooth ////////////////////////////////////
 #define BT_NAME "openDSC"

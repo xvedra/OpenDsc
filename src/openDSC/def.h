@@ -18,7 +18,7 @@
 #define AZ_FILTER_LEVEL 10
 #define ALT_FILTER_LEVEL 10
 
-#define BAUDRATE_DEBUG 115200
+
 
 #define ESP_DSC_VERSION "2.0.0"
 #define ESP_DSC_ABOUT "V2.0.0 by Xvedra"
