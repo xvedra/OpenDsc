@@ -64,3 +64,5 @@ a) software structure improvement
 
 b) Demo window added
 
+Important: do not use USB communication yet!!! (solving a bug)
+
