@@ -5,8 +5,8 @@
 
 // Normally undefined:
 //#define USE_L200 /* only for awner development propossal */
-//#define USE_DEBUG //Comment to enable communications over USB
-
+#define USE_DEBUG //Comment to enable communications over USB
+#define SLOW_BOOT 0 //1:slow 0:fast
 // USB Serial ///////////////////////////////////
 #define BAUDRATE_DEBUG_INDEX 7
 
@@ -27,7 +27,7 @@
   #error "Not developed yet... please wait. Thank you"
 #endif
 
-#define DEF_USB_SERIAL_BAUDRATE DEF_BR_9600
+#define DEF_USB_SERIAL_BAUDRATE DEF_BR_115200
 #define DEF_CURRENT_MOUNT 0
 //Default setting for Mount1:
 #define DEF_NAME1 "GSO 10"

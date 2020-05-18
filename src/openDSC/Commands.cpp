@@ -663,7 +663,7 @@ void SerialProcessCommands(Stream *serial)
 }
 #endif
 
-void WifiProcessClient(uint8_t c)
+void WiFiProcessClient(uint8_t c)
 {
     char buff[CLIENT_BUFF_LEN];
     char *value;
@@ -801,7 +801,7 @@ void GetAutomatically()
   switch(stt)
   {
     case 0:
-    if(isBtConnected() || isWifiConnected())
+    if(isBtConnected() || isWiFiConnected())
     {
       GetPosReqCtr = 0;
       dsc_Disable();
@@ -814,7 +814,7 @@ void GetAutomatically()
     }
     break;
     case 1:
-    if(isBtConnected() || isWifiConnected())
+    if(isBtConnected() || isWiFiConnected())
     {
       if(GetPosReqCtr >= 12)
       {
@@ -839,7 +839,7 @@ void GetAutomatically()
     }
     break;
     case 3:
-    if(!isBtConnected() && !isWifiConnected()) stt = 0;
+    if(!isBtConnected() && !isWiFiConnected()) stt = 0;
     break;
   }
 }
@@ -888,7 +888,7 @@ void disconnectBluetooth()
   }
 }
 
-bool isBluetoothSelected()
+bool isBluetoothEnabled()
 {
   return(BTon);
 }
@@ -939,12 +939,12 @@ void disconnectWIFI()
   }
 }
 
-bool isWifiSelected()
+bool isWiFiEnabled()
 {
   return(WIFIon);
 }
 
-bool isWifiConnected()
+bool isWiFiConnected()
 {
   return(WiFi.softAPgetStationNum() != 0);
 }
@@ -977,7 +977,7 @@ void WIFI_loop()
     for (c = 0; c < MAX_SRV_CLIENTS; c++) {
         if (serverClients[c] && serverClients[c].connected()) {
             if (serverClients[c].available()) {
-                WifiProcessClient(c);
+                WiFiProcessClient(c);
             }
         }
     }

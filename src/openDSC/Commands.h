@@ -17,7 +17,7 @@
 void commandsInit(void);
 void commandsLoop(void);
 void SerialProcessCommands(Stream *serial);
-void WifiProcessClient(uint8_t c);
+void WiFiProcessClient(uint8_t c);
 void readLine(char *p, int maxlen);
 void printEncoderValue(long val);
 void printHexEncoderValue(long val);
@@ -29,10 +29,10 @@ bool isBtConnected();
 void GetAutomatically();
 void connectBluetooth();
 void disconnectBluetooth();
-bool isBluetoothSelected();
+bool isBluetoothEnabled();
 void connectWIFI();
 void disconnectWIFI();
-bool isWifiSelected();
-bool isWifiConnected();
+bool isWiFiEnabled();
+bool isWiFiConnected();
 void WIFI_loop();
 

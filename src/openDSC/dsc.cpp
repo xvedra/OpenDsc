@@ -85,25 +85,38 @@ void dsc_Loop(void)
   if(checkTimer(timer, DSC_TIME_LOOP_MS))
   {
     timer = InitTimer(0);
-    
-    EncoderALT.loop();
-    EncoderAZ.loop();
-    //AltPos = EncoderALT.read();
-    //AzPos = EncoderAZ.read();   
-
+      
     switch(AltSensor)
     {
-      case DSC_QUADRATURE:  AltPos = abs(AltRes/2); break;
-      case DSC_AS5600:      AltPos = EncoderALT.read(); break;
-      case DSC_AS5048:      AltPos = abs(AltRes/2); break;
-      case DSC_MPU6050:     AltPos = abs(AltRes/2); break;
+      case DSC_QUADRATURE:  
+      AltPos = abs(AltRes/2); 
+      break;
+      case DSC_AS5600: 
+      EncoderALT.loop();    
+      AltPos = EncoderALT.read(); 
+      break;
+      case DSC_AS5048:      
+      AltPos = abs(AltRes/2); 
+      break;
+      case DSC_MPU6050:     
+      AltPos = abs(AltRes/2); 
+      break;
     }
     switch(AzSensor)
     {
-      case DSC_QUADRATURE:  AzPos = abs(AzRes/2); break;
-      case DSC_AS5600:      AzPos = EncoderAZ.read();  break;
-      case DSC_AS5048:      AzPos = abs(AzRes/2);; break;
-      case DSC_MPU6050:     AzPos = abs(AzRes/2);; break;
+      case DSC_QUADRATURE:  
+      AzPos = abs(AzRes/2); 
+      break;
+      case DSC_AS5600:      
+      EncoderAZ.loop();
+      AzPos = EncoderAZ.read();  
+      break;
+      case DSC_AS5048:      
+      AzPos = abs(AzRes/2); 
+      break;
+      case DSC_MPU6050:     
+      AzPos = abs(AzRes/2);
+      break;
     }
   }
 }
@@ -241,7 +254,7 @@ long dsc_GetAlt(void)
 
 void dsc_SetAlt(long count)
 {
-  AltPos = count;
+  //AltPos = count;
   switch(AltSensor)
   {
     case DSC_QUADRATURE:  break;
@@ -266,7 +279,7 @@ long dsc_GetAz(void)
 
 void dsc_SetAz(long count)
 {
-  AzPos = count;
+  //AzPos = count;
   switch(AzSensor)
   {
     case DSC_QUADRATURE:  break;
@@ -285,6 +298,7 @@ void dsc_Disable()
     case DSC_AS5048:      break;
     case DSC_MPU6050:     break;
   }   
+  
   switch(AzSensor)
   {
     case DSC_QUADRATURE:  break;
@@ -303,6 +317,7 @@ void dsc_Enable()
     case DSC_AS5048:      break;
     case DSC_MPU6050:     break;
   }   
+  
   switch(AzSensor)
   {
     case DSC_QUADRATURE:  break;
@@ -322,6 +337,7 @@ bool dsc_IsEnabled()
     case DSC_AS5048:      break;
     case DSC_MPU6050:     break;
   }   
+  
   switch(AzSensor)
   {
     case DSC_QUADRATURE:  break;
@@ -364,3 +380,13 @@ int dsc_GetAzSensor()
   return(AzSensor);
 }
 
+long int formatData(long int in, long int res)
+{
+  long int output;
+  
+  if(in > 0) output = in % abs(res);
+  else if(in < 0) output = abs(res) - (abs(in) % abs(res));
+  else output = 0;
+  if(res < 0) output = -output;
+  return(output);
+}

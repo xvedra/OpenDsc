@@ -32,6 +32,7 @@ class AS5600
   	void setFilterLevel(int FilterLevel);
   	void setOutput(long out);
     byte readRegister(byte add);
+	long int formatData(long int in, long int res);
   	
   	//Friendly functions:
   	long read();
@@ -172,7 +173,7 @@ void AS5600::setOutput(long out)
 {
 	EncoderInc = 0;  
 	EncoderLastPosition = EncoderPosition = getPosition(); 
-	EncoderOutput = EncoderFilteredOutput = Output = out;
+	EncoderOutput = EncoderFilteredOutput = Output = out;//formatData(out, EncoderResolution);
 	if(_FilterLevel != 0) _FilterSum = (long)EncoderFilteredOutput * _FilterLevel;
 }
 
@@ -283,5 +284,16 @@ bool AS5600::isEnabled()
 byte AS5600::readRegister(byte add)
 {
   return(_getRegister(add));
+}
+
+long int AS5600::formatData(long int in, long int res)
+{
+  long int output;
+  
+  if(in > 0) output = in % abs(res);
+  else if(in < 0) output = abs(res) - (abs(in) % abs(res));
+  else output = 0;
+  if(res < 0) output = -output;
+  return(output);
 }
 #endif

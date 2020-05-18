@@ -42,3 +42,5 @@ void dsc_SetAzSensor(int sensor);
 int dsc_GetAltSensor();
 int dsc_GetAzSensor();
 
+long int formatData(long int in, long int res);
+
