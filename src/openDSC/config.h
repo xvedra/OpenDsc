@@ -5,8 +5,8 @@
 
 // Normally undefined:
 //#define USE_L200 /* only for awner development propossal */
-#define USE_DEBUG //Comment to enable communications over USB
-#define SLOW_BOOT 0 //1:slow 0:fast
+//#define USE_DEBUG //Comment to enable communications over USB
+#define SLOW_BOOT 1 //1:slow 0:fast
 // USB Serial ///////////////////////////////////
 #define BAUDRATE_DEBUG_INDEX 7
 
