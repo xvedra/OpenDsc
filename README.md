@@ -68,3 +68,4 @@ b) Demo window added
 
 c) Solved USB compatibility with ArduinoMenu
 
+Note: Battery is not supported yet
