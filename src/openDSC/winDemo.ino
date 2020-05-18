@@ -52,7 +52,7 @@ void winDemo(byte section)
     }
     if((eventsReadCurrentEvent() == EVENT_BTN_UP_CLICK) || (goFast && !(millis() % 50)))
     {   
-      if(sel == 0)
+      if(sel == 0 && !goFast)
       {
         myDemoAlt = 0;
         myDemoAz = 0;
