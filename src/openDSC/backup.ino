@@ -85,11 +85,7 @@ void loadPartialDefEEPROM()
   #endif
   MyConfig.Version = EEPROM_VERSION;
   MyConfig.CurrentMount = DEF_CURRENT_MOUNT;
-  /*
-  //MyConfig.WiFi = DEF_WIFI;
-  //MyConfig.Bluetooth = DEF_BT;
-  //MyConfig.USB = DEF_USB_SERIAL_BAUDRATE;  
-  */
+
   strncpy(MyConfig.Tele[0].Name,DEF_NAME1, BT_NAME_SIZE);      
   MyConfig.Tele[0].RA_Az_SensorType = DEF_AZ_ENC1;
   MyConfig.Tele[0].Dec_Alt_SensorType = DEF_ALT_ENC1;

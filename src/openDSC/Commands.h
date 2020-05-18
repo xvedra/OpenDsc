@@ -16,6 +16,7 @@
 // Prototypes ////////////////////////////////////
 void commandsInit(void);
 void commandsLoop(void);
+void SerialProcessCommands2();
 void SerialProcessCommands(Stream *serial);
 void WiFiProcessClient(uint8_t c);
 void readLine(char *p, int maxlen);

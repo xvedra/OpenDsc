@@ -77,8 +77,12 @@ WirelessStatus myWirelessStatus;
 //////////////////////////////////////////////////////////////////////
 // MENU SETUP ////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
+#ifdef USE_DEBUG
 serialIn serial(Serial);
-//MENU_INPUTS(in,&serial);its single, no need to `chainStream`
+#else
+chainStream<0> serial(NULL);//<-- this creates a NULL stream
+#endif
+//MENU_INPUTS(in, &serial);
 //define serial output device
 idx_t serialTops[MAX_DEPTH]={0};
 serialOut outSerial(Serial,serialTops);
@@ -88,7 +92,11 @@ panelsList pList(panels, nodes, 1); //a list of panels and nodes
 idx_t eSpiTops[MAX_DEPTH]={0};
 TFT_eSPIOut eSpiOut(tft,colors,eSpiTops,pList,fontW,fontH+1);
 //TFT_eSPIOut eSpiOut(tft,nightColors,eSpiTops,pList,fontW,fontH+1);
+#ifdef USE_DEBUG
 menuOut* constMEM outputs[] MEMMODE={&outSerial,&eSpiOut};//list of output devices
+#else
+menuOut* constMEM outputs[] MEMMODE={&eSpiOut};//list of output devices
+#endif
 outputsList out(outputs,sizeof(outputs)/sizeof(menuOut*));//outputs list controller
 //config myOptions('*','-',defaultNavCodes,true);
 //////////////////////////////////////////////////////////////////////
@@ -552,13 +560,15 @@ void checkWirelessLoop()
 {
   static WirelessStatus lastStatus = {0,0,0};
   static time_t timer = 0;
+  extern unsigned long int BAUDRATES[];
   
   if(myUsbSerialBaudrateIndex != MyConfig.USB)
   {
+    Serial.printf("New seial baudrate: %d : %d\n", myUsbSerialBaudrateIndex, BAUDRATES[myUsbSerialBaudrateIndex&7]);
     MyConfig.USB = myUsbSerialBaudrateIndex;
     uploadEEPROM();
     connectUsbSerial(myUsbSerialBaudrateIndex);
-    eventsPutFifo(EVENT_SERIAL_SET);
+    eventsPutFifo(EVENT_SERIAL_SET);    
   }
   
   if(myWirelessStatus.BT_switched && !MyConfig.Bluetooth)
@@ -669,9 +679,6 @@ void setup()
       digitalWrite(TFT_BL, TFT_BACKLIGHT_ON); // Turn backlight on. TFT_BACKLIGHT_ON has been set in the TFT_eSPI library in the User Setup file TTGO_T_Display.h
   }
 */
-  #ifdef USE_DEBUG
-  Serial.print("Configuring PWM for TFT backlight...\n");
-  #endif
   ledcSetup(pwmLedChannelTFT, pwmFreq, pwmResolution);
   ledcAttachPin(TFT_BL, pwmLedChannelTFT);
   ledcWrite(pwmLedChannelTFT, 0);
@@ -682,6 +689,7 @@ void setup()
   tft.setSwapBytes(true);  
   tft.setTextSize(2);
   tft.setTextWrap(false);
+   
 
   // End of tft config ////////////////////////////
   delay(500*SLOW_BOOT);
@@ -689,17 +697,11 @@ void setup()
   ledcWrite(pwmLedChannelTFT, 100);
   if(checkVersionEEPROM())
   {
-    #ifdef USE_DEBUG
-    Serial.printf("Config: %d\n", EEPROM_VERSION);
-    #endif    
     loadEEPROM();
     tft.drawString("EEPROM loaded", 5, 24*0);
   }
   else
   {
-    #ifdef USE_DEBUG
-    Serial.printf("New Config to %d\n", EEPROM_VERSION);
-    #endif
     loadDefEEPROM();
     tft.drawString("Def EEPROM loaded", 5, 24*0);
   }
@@ -730,20 +732,23 @@ void setup()
 
   delay(2000*SLOW_BOOT);
   tft.fillScreen(TFT_BLACK);
-  #ifdef USE_DEBUG
+  //#ifdef USE_DEBUG
   tft.drawString("DEBUG ON", 5, 24*0);
-  #else
+  //#else
   tft.drawString("DEBUG OFF", 5, 24*0);
-  #endif
+  //#endif
   delay(500*SLOW_BOOT);
 
   tft.drawString("Opening Serial...", 5, 24*1);
   myUsbSerialBaudrateIndex = MyConfig.USB;
+  
   #ifdef USE_DEBUG
   Serial.begin(BAUDRATE_DEBUG);
   #else
   connectUsbSerial(MyConfig.USB);
-  #endif
+  //Serial.printf("\nSerial: %d", BAUDRATES[myUsbSerialBaudrateIndex&7]);
+  #endif  
+  
   sprintf(buf, "done: %d", BAUDRATES[myUsbSerialBaudrateIndex]);
   tft.drawString(buf, 5, 24*2);
   delay(500*SLOW_BOOT);
@@ -812,7 +817,7 @@ void setup()
   tft.fillScreen(Black);
   nav.idleTask=idle;//point a function to be used when menu is suspended
   nav.idleOn(idle);
-  isIdle = 1;  
+  isIdle = 1;   
 }
 
 //////////////////////////////////////////////////////////////////////

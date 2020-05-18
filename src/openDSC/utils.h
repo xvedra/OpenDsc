@@ -29,6 +29,7 @@ char *HexEncoderValue(long value);
 char *EncoderValue(long value, bool lead);
 bool checkTimer(time_t timer, unsigned long msec);
 time_t InitTimer(time_t load);
+void test(int run);
 
 
 #define IS_WORD_END(x) (((x) == ' ') || ((x) == '\r') || ((x) == '\t') || ((x) == '\n'))

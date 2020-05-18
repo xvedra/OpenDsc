@@ -87,12 +87,15 @@ void commandsLoop(void)
   #ifndef USE_DEBUG
   SerialProcessCommands(&Serial);
   #endif
+  
   if(BTon) SerialProcessCommands(&SerialBT);
+  
   if(checkTimer(timer1, WIFI_LOOP_T_MS))
   {
     timer1 = InitTimer(0);
     if(WIFIon) WIFI_loop();    
   }
+  
   #ifdef USE_SOLVE_SKYSAFARI_AUTOMATICALLY_RESOLUTION_BUG
   GetAutomatically(); //solves bug for Skysafari
   #endif
@@ -225,225 +228,7 @@ void readLine(char *p, int maxlen)
   
   *s = '\0';
 }
-#if(0)
-void SerialProcessCommands()
-{
-    char buff[CLIENT_BUFF_LEN];
-    char *value;
-    char val;
-    int i, j;
 
-    if(SerialBT.available()) val = SerialBT.read();
-    else return;
-    
-    switch (val) {        
-        case 'Q':
-            // get encoder values
-            GetPosReqCtr++;
-
-            value = EncoderValue(AZ_Pos, true);
-            sprintf(buff, "%s\t", value);
-            value = EncoderValue(ALT_Pos, true);
-            strcat(buff, value);
-            SerialBT.printf("%s\r\n", buff);    
-            
-            /*
-            printEncoderValue(AZ_Pos);
-            SerialBT.print("\t");
-            printEncoderValue(ALT_Pos);
-            SerialBT.print("\r\n");  
-            */          
-            
-            break;
-        case 'Z':
-        case 'R':
-        case 'I':
-            // set resolution
-            long az, alt;
-            
-            readLine(buff, CLIENT_BUFF_LEN-1);
-            //parseSetResolutionCmd(buff);
-
-            if(sscanf(buff, "%ld %ld", &az, &alt) != 2)
-            {
-              #ifdef USE_DEBUG
-              Serial.printf("R/I: Fail arguments != 2\n");
-              #endif
-            }
-            else
-            {
-              AZ_Res = az;
-              ALT_Res = alt;           
-              dsc_SetAltAzRes(ALT_Res, AZ_Res);  
-              if(val = 'Z')SerialBT.print("*");
-              else SerialBT.print("R");
-              #ifdef USE_DEBUG
-              Serial.printf("Z,R/I: Set resolution...done\n");
-              #endif
-            }
-            /*
-            memset(buff, '\0', CLIENT_BUFF_LEN);
-            i = 0;
-            j = 0;
-            // Horrible hack around ESP8266 not having sscanf()
-            if (SerialBT.available()) {
-                SerialBT.read(); // read the space
-            } else {
-                #ifdef USE_DEBUG
-                Serial.printf("short command!\n");
-                #endif
-                return;
-            }
-
-            while (i < 2) {
-                while (SerialBT.available() && SerialBT.peek() != ' ') {
-                    if (SerialBT.peek() != ' ') {
-                        buff[j] = SerialBT.read();
-                        j++;
-                    }
-                }
-                if (i == 0) {
-                    j = 0;
-                    az_value = String(buff).toInt();
-                    #ifdef USE_DEBUG
-                    Serial.printf("AZ = %ld\n", az_value);
-                    #endif
-                    memset(buff, '\0', CLIENT_BUFF_LEN);
-                    SerialBT.read(); // read the space
-                } else {
-                    alt_value = String(buff).toInt();
-                    #ifdef USE_DEBUG
-                    Serial.printf("ALT = %ld\n", alt_value);
-                    #endif
-                }
-                i++;
-            }
-            if (i != 2) {
-                #ifdef USE_DEBUG
-                Serial.printf("Unable to process: R %s\n", buff);
-                #endif
-                return;
-            }
-            AZ_Res = az_value;
-            ALT_Res = alt_value;           
-            dsc_SetAltAzRes(ALT_Res, AZ_Res);      
-            */      
-            break;
-        case 'G':
-        case 'H':               
-        case 'r':  
-            AZ_Res = dsc_GetAzRes();
-            ALT_Res = dsc_GetAltRes();
-            
-            /*
-            printEncoderValue(AZ_Res);
-            SerialBT.print("\t");
-            printEncoderValue(ALT_Res);
-            SerialBT.print("\r\n");  
-            */ 
-
-            value = EncoderValue(AZ_Res, true);
-            sprintf(buff, "%s\t", value);
-            value = EncoderValue(ALT_Res, true);
-            strcat(buff, value);
-            SerialBT.printf("%s\r\n", buff);
-            #ifdef USE_DEBUG
-            Serial.printf("Get Res> Az:%ld\tAlt:%ld\n", AZ_Res, ALT_Res);
-            Serial.printf("Pos> Az:%ld\t%Alt:%ld\n", AZ_Pos, ALT_Pos);
-            #endif
-            break;         
-        case 'T':
-            //Toggle test mode on/off
-
-            //Read Encoders
-            /*
-            printEncoderValue(AZ_Res);
-            SerialBT.print("\t");
-            printEncoderValue(ALT_Res);
-            SerialBT.print("\t00000\r\n");
-            */
-            /*
-            value = EncoderValue(AZ_Res, true);
-            sprintf(buff, "%s\t", value);
-            value = EncoderValue(ALT_Res, true);
-            SerialBT.printf("%s%s\t00000\r\n", buff, value);
-            */           
-            /*
-            // get resolution
-            long az, alt;
-            char az_pos[2], alt_pos[2];
-
-            dsc_GetAltAzRes(&ALT_Res, &AZ_Res);
-            az = abs(AZ_Res);
-            alt = abs(ALT_Res);
-
-            az_pos[1] = alt_pos[1] = '\0';
-            az_pos[0] = az == AZ_Res ? '+' : '-';
-            alt_pos[0] = alt == ALT_Res ? '+' : '-';
-            #ifdef USE_DEBUG
-            Serial.printf("RES: %s%05ld\t%s%05ld\r\n", az_pos, az, alt_pos, alt); 
-            #endif
-            if(val == 'T') SerialBT.printf("%s%05ld\t%s%05ld\t00000\r\n", az_pos, az, alt_pos, alt); 
-            else SerialBT.printf("%s%05ld\t%s%05ld\r\n", az_pos, az, alt_pos, alt); 
-            */
-            break; 
-           
-        case 'V':
-        case 'v':
-            // get version
-            SerialBT.printf("ESP-DSC v%s\r\n", ESP_DSC_VERSION);
-            break;          
-        case 'P':
-            //Get status
-            SerialBT.printf("001\r\n");
-            break;
-        case 'A':
-            beenAligned = 1;
-            break;
-        case 'a':
-            if (beenAligned) SerialBT.print("Y");
-            else SerialBT.print("N");
-            break;
-        case 'q':
-            // error count
-            SerialBT.print("00000\r\n");
-            break;     
-        //USE_EKS......................
-        case 'z': 
-            //Set the encoder resolution
-            byte b1, b2;
-            b1 = SerialBT.read();
-            b2 = SerialBT.read();            
-            ALT_Res = b2*256+b1;          
-            b1 = SerialBT.read();
-            b2 = SerialBT.read();
-            AZ_Res = b2*256+b1;
-            dsc_SetAltAzRes(ALT_Res, AZ_Res);
-            break;           
-        case 'h': 
-            AZ_Res = dsc_GetAzRes();
-            ALT_Res = dsc_GetAltRes();
-            //Report the encoder resolution 
-            printHexEncoderValue(abs(ALT_Res));
-            printHexEncoderValue(abs(AZ_Res));
-            break; 
-        case 'y': 
-            //Report the encoder positions
-            printHexEncoderValue(abs(ALT_Pos));
-            printHexEncoderValue(abs(AZ_Pos));
-            break;
-        case 'p': 
-            //Report the number of encoder errors and reset the counter to zero
-            SerialBT.print("00");
-            break;            
-        default:
-            #ifdef USE_DEBUG
-            Serial.printf("BT.Unknown command: %c\r\n", val);
-            #endif
-            break;
-    }
-}
-#else
 void SerialProcessCommands(Stream *serial)
 {
     char buff[CLIENT_BUFF_LEN];
@@ -453,7 +238,7 @@ void SerialProcessCommands(Stream *serial)
 
     if(serial->available()) val = serial->read();
     else return;
-    
+
     switch (val) {        
         case 'Q':
             // get encoder values
@@ -661,7 +446,7 @@ void SerialProcessCommands(Stream *serial)
             break;
     }
 }
-#endif
+
 
 void WiFiProcessClient(uint8_t c)
 {

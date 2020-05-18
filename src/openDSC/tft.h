@@ -4,6 +4,9 @@
 #include <Button2.h>
 #include <menuIO/serialIO.h>
 #include <menuIO/TFT_eSPIOut.h>
+#include <menuIO/serialOut.h>
+#include <menuIO/chainStream.h>
+#include <menuIO/serialIn.h>
 
 #include "pinMap.h"
 

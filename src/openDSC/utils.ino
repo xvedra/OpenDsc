@@ -118,3 +118,18 @@ time_t InitTimer(time_t load)
 {
   return(millis() + load);
 }
+
+void test(int run)
+{
+  char val;  
+  do
+  {
+    if(Serial.available()) 
+    {
+      val = Serial.read();
+      Serial.printf("CMD: %c %d\n", val, val);
+    }
+  }
+  while(run);
+}
+

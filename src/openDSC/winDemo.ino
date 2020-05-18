@@ -36,8 +36,8 @@ void winDemo(byte section)
     drawGraph = 1;
     myDemoAlt = dsc_GetAlt();
     myDemoAz = dsc_GetAz();
-    Serial.printf("Res> Az:%ld Alt:%ld\n", dsc_GetAzRes(), dsc_GetAltRes());
-    Serial.printf("Pos> Az:%ld Alt:%ld\n", dsc_GetAlt(), dsc_GetAz());
+    //Serial.printf("Res> Az:%ld Alt:%ld\n", dsc_GetAzRes(), dsc_GetAltRes());
+    //Serial.printf("Pos> Az:%ld Alt:%ld\n", dsc_GetAlt(), dsc_GetAz());
   }
   if(section == SECTION_RUN || section == SECTION_START)
   {    
@@ -48,7 +48,7 @@ void winDemo(byte section)
     {
       sel = (sel + 1) % 9;       
       drawGraph = 1;
-      Serial.printf("Sel: %d\n", sel);
+      //Serial.printf("Sel: %d\n", sel);
     }
     if((eventsReadCurrentEvent() == EVENT_BTN_UP_CLICK) || (goFast && !(millis() % 50)))
     {   
@@ -58,7 +58,6 @@ void winDemo(byte section)
         myDemoAz = 0;
         drawText = 1;
         goFast = 0;
-        Serial.println("ZERO");
       }
       else
       {
