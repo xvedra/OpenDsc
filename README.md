@@ -55,3 +55,12 @@ Add goals:
 a) Detect I2C encoders
 
 b) Demo interface to test clients
+
+** 18/05/2020 ***********************************
+
+Version 2.0.0
+
+a) software structure improvement
+
+b) Demo window added
+
