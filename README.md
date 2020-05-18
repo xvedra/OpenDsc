@@ -1,4 +1,4 @@
-# OpenDsc (project under development)
+# OpenDsc 2.0.0 (project under development)
 ESP32 TTGO Digital Setting  Circles 
 
 Based in:
