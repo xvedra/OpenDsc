@@ -1,7 +1,7 @@
 # OpenDsc 2.0.0 (project under development)
 ESP32 TTGO Digital Setting  Circles 
 
-![Image description](https://github.com/xvedra/OpenDsc/tree/master/screenshots/MainWin.jpg)
+![Image description](https://github.com/xvedra/OpenDsc/blob/master/screenshots/MainWin.jpg)
 
 Based in:
 
