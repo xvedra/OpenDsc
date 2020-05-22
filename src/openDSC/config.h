@@ -53,10 +53,4 @@
 #define DEF_AZ_ENC4 ST_AS5600
 #define DEF_ALT_RES4 65535 //4096 * 182 / 26 /* Use negative to reverse */
 #define DEF_AZ_RES4  65535 //4096 * 182 / 26 /* Use negative to reverse */
-// I2C //////////////////////////////////////////
-//AZ pinout:
-#define SCL1_PIN  13
-#define SDA1_PIN  15
-//Alt pinout:
-#define SCL2_PIN  32
-#define SDA2_PIN  33
+

@@ -1,6 +1,7 @@
 
 #include "dsc.h"
 #include "lib/AS5600.h"
+#include "pinMap.h"
 
 // Globals //////////////////////////////////////////////////////////////////////////
 long AltRes = RES_ALT_DEF;  // resolution of encoders

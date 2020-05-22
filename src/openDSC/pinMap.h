@@ -13,3 +13,11 @@
 #define BTN_DWN 0 // Pinnumber for button for down/next and back / exit actions (don't change this if you want to use the onboard buttons)
 
 #define LED_CTRL        0
+
+// I2C //////////////////////////////////////////
+//AZ pinout:
+#define SCL1_PIN  13
+#define SDA1_PIN  15
+//Alt pinout:
+#define SCL2_PIN  32
+#define SDA2_PIN  33
