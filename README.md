@@ -68,4 +68,6 @@ b) Demo window added
 
 c) Solved USB compatibility with ArduinoMenu
 
-Note: Battery is not supported yet
+Note: Battery is not supported yet, use USB power supply
+
+To AS5600 encoder use 3.3V power supply in 5V pin due to I2C pull-up resistots to 5V pin. ESP32 is not 5V tolerant.
