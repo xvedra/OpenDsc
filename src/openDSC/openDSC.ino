@@ -32,6 +32,7 @@ When you need to measure battery voltage first set PWR_EN to "1", measure voltag
 #include <EEPROM.h>
 #include <WiFi.h>
 //#include <Wire.h>
+#include <esp_wifi.h>
 
 #include "def.h"
 #include "config.h"
@@ -302,8 +303,32 @@ TOGGLE(myUsbSerialBaudrateIndex,chooseSerialMenu,"Serial:",doNothing,noEvent,noS
   ,VALUE("57600",DEF_BR_57600,doNothing,noEvent)
   ,VALUE("115200",DEF_BR_115200,doNothing,noEvent)
 );
+// WiFi Tx Power ////////////////////////////////////////////
 
+result Action_chooseWiFiTxPower()
+{
+  if(esp_wifi_set_max_tx_power(MyConfig.WiFiTxPower) != ESP_OK)
+  {
+    #ifdef USE_DEBUG
+    Serial.printf("\n\nAction_chooseWiFiTxPower: Fail\n");
+    #endif
+  }
+  else
+  {
+    #ifdef USE_DEBUG
+    Serial.printf("\n\nAction_chooseWiFiTxPower: Success\n");
+    #endif
+  }
+  return proceed;
+}
 
+TOGGLE(MyConfig.WiFiTxPower,chooseWiFiTxPowerMenu,"WiFi pwr:",doNothing,noEvent,noStyle
+  ,VALUE("Very high",WIFI_TX_PWR_VERYHIGH,Action_chooseWiFiTxPower,noEvent)
+  ,VALUE("High",WIFI_TX_PWR_HIGH,Action_chooseWiFiTxPower,noEvent)
+  ,VALUE("Middle",WIFI_TX_PWR_MIDDLE,Action_chooseWiFiTxPower,noEvent)
+  ,VALUE("Low",WIFI_TX_PWR_LOW,Action_chooseWiFiTxPower,noEvent)
+  ,VALUE("Very low",WIFI_TX_PWR_VERYLOW,Action_chooseWiFiTxPower,noEvent)
+);
 // Restore //////////////////////////////////////////////////
 result Action_Restore()
 {
@@ -338,6 +363,7 @@ MENU(mainMenu,"OpenDSC menu",doNothing,noEvent,wrapStyle
   ,SUBMENU(subMenuConfig) 
   ,SUBMENU(chooseBluetoothMenu)
   ,SUBMENU(chooseWiFiMenu)
+  ,SUBMENU(chooseWiFiTxPowerMenu)
   #ifndef USE_DEBUG
   ,SUBMENU(chooseSerialMenu)
   #endif
@@ -592,6 +618,7 @@ void checkWirelessLoop()
     MyConfig.WiFi = 1;
     uploadEEPROM();
     connectWIFI();
+    esp_wifi_set_max_tx_power(MyConfig.WiFiTxPower);
   }
   if(!myWirelessStatus.WiFi_switched && MyConfig.WiFi)
   {
@@ -640,9 +667,9 @@ void checkWirelessLoop()
     mainMenu[2].enable();    
     mainMenu[3].enable(); 
     #ifdef USE_DEBUG
-    mainMenu[11].enable();
-    #else
     mainMenu[12].enable();
+    #else
+    mainMenu[13].enable();
     #endif
   }
   if(isBtConnected() || isWiFiConnected())
@@ -653,11 +680,14 @@ void checkWirelessLoop()
     mainMenu[2].disable();
     mainMenu[3].disable();
     #ifdef USE_DEBUG
-    mainMenu[11].disable();
+    mainMenu[12].disable();
     #else
-    mainMenu[12].enable();
+    mainMenu[13].enable();
     #endif
   }
+  
+  if(isWiFiEnabled()) mainMenu[4].enable();
+  else mainMenu[4].disable();
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -775,6 +805,7 @@ void setup()
     tft.drawString("Connect WiFi...", 5, 24*4);
     connectWIFI();
     myWirelessStatus.WiFi_switched = 1;
+    esp_wifi_set_max_tx_power(MyConfig.WiFiTxPower);    
     tft.drawString("done", 239-24*2, 24*4);
   }
   else

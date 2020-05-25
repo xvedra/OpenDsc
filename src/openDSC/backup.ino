@@ -45,6 +45,7 @@ void loadDefEEPROM()
   MyConfig.CurrentMount = DEF_CURRENT_MOUNT;
 
   MyConfig.WiFi = DEF_WIFI;
+  MyConfig.WiFiTxPower = DEF_WIFI_TX_POWER;
   MyConfig.Bluetooth = DEF_BT;
   MyConfig.USB = DEF_USB_SERIAL_BAUDRATE; 
 
@@ -84,7 +85,7 @@ void loadPartialDefEEPROM()
   Serial.print("Loading partial default config...\n");
   #endif
   MyConfig.Version = EEPROM_VERSION;
-  MyConfig.CurrentMount = DEF_CURRENT_MOUNT;
+  MyConfig.CurrentMount = DEF_CURRENT_MOUNT;  
 
   strncpy(MyConfig.Tele[0].Name,DEF_NAME1, BT_NAME_SIZE);      
   MyConfig.Tele[0].RA_Az_SensorType = DEF_AZ_ENC1;

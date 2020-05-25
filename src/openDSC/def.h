@@ -58,6 +58,8 @@
 #define DEF_WIFI 0
 #define DEF_BT 1
 
+#define DEF_WIFI_TX_POWER WIFI_TX_PWR_LOW
+
 #define SECTION_NULL  0
 #define SECTION_START 1
 #define SECTION_RUN   2
@@ -73,7 +75,7 @@
 #define ST_MAX_SENSOR ST_MPU6050
 
 // TelescopeSensorMount //////////////////////
-#define EEPROM_VERSION 1
+#define EEPROM_VERSION 2
 
 // Remember upload EEPROM_VERSION every change in this structure!!!
 typedef struct
@@ -91,6 +93,7 @@ typedef struct
 {
   byte Version;
   byte WiFi;
+  byte WiFiTxPower;
   byte Bluetooth;
   byte USB;
   byte CurrentMount;
@@ -118,4 +121,12 @@ typedef struct
   byte BT_switched; //non bit to use in menu
   byte WiFi_switched; //non bit to use in menu
 } WirelessStatus;
+
+//WIFI TX PWR:
+#define WIFI_TX_PWR_VERYHIGH  78
+#define WIFI_TX_PWR_HIGH  66
+#define WIFI_TX_PWR_MIDDLE  52
+#define WIFI_TX_PWR_LOW 28
+#define WIFI_TX_PWR_VERYLOW 8
+
 #endif

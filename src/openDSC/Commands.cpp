@@ -697,7 +697,7 @@ void connectWIFI()
     Serial.println(myIP);
     #endif
     server.begin();
-    server.setNoDelay(true);    
+    server.setNoDelay(true);   
     WIFIon = 1;
   }
 }
