@@ -20,8 +20,8 @@
 
 
 
-#define ESP_DSC_VERSION "2.0.0"
-#define ESP_DSC_ABOUT "V2.0.0 by Xvedra"
+#define ESP_DSC_VERSION "2.0.1"
+#define ESP_DSC_ABOUT "V2.0.1 by Xvedra"
 #define ESP_DSC_BT_NAME "Bluetooth: openDSC"
 #define ESP_DSC_WIFI_NAME "WIFI: openDSC"
 #define ESP_DSC_WIFI_PASS " pass: 12345678"
