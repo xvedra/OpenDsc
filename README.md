@@ -35,8 +35,6 @@ Support AS5600 (AS5048 encoders: soon).
 
 Quadrature encoders support are coming.
 
-Demo mode are coming too.
-
 Encoders system can downloaded from :
 
 https://www.thingiverse.com/xvedra/designs
