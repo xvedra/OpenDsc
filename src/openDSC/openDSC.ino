@@ -762,11 +762,11 @@ void setup()
 
   delay(2000*SLOW_BOOT);
   tft.fillScreen(TFT_BLACK);
-  //#ifdef USE_DEBUG
+  #ifdef USE_DEBUG
   tft.drawString("DEBUG ON", 5, 24*0);
-  //#else
+  #else
   tft.drawString("DEBUG OFF", 5, 24*0);
-  //#endif
+  #endif
   delay(500*SLOW_BOOT);
 
   tft.drawString("Opening Serial...", 5, 24*1);
