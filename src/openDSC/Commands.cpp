@@ -127,14 +127,14 @@ void printEncoderValue(long val)
 }
 */
 
-void printHexEncoderValue(long val)
+void printHexEncoderValue(Stream *serial, long val)
 {
   byte low, high;
 
   high = val / 256;
   low = val - high*256;
-  SerialBT.write(low);
-  SerialBT.write(high);
+  serial->write(low);
+  serial->write(high);
   return;
 }
 
@@ -188,14 +188,14 @@ void parseSetResolutionCmd(char *cmd)
   }
 }
 
-void parseEkSetResolutionCmd()
+void parseEkSetResolutionCmd(Stream *serial)
 {
-  byte b1 = SerialBT.read();
-  byte b2 = SerialBT.read();
+  byte b1 = serial->read();
+  byte b2 = serial->read();
   ALT_Res = b2*256+b1;
 
-  b1 = SerialBT.read();
-  b2 = SerialBT.read();
+  b1 = serial->read();
+  b2 = serial->read();
   AZ_Res = b2*256+b1;
 
   dsc_SetAltAzRes(ALT_Res, AZ_Res);
@@ -213,14 +213,14 @@ unsigned long int ReadGetPosReqCtr()
   return(GetPosReqCtr);
 }
 
-void readLine(char *p, int maxlen)
+void readLine(Stream *serial, char *p, int maxlen)
 {
   int i=0;
   char *s = p;
   
   do
   {
-    *s = SerialBT.read();    
+    *s = serial->read();    
     if (!*s) return;    
     if (*s == '\r') break;     
     s++;
@@ -264,8 +264,8 @@ void SerialProcessCommands(Stream *serial)
             // set resolution
             long az, alt;
             
-            readLine(buff, CLIENT_BUFF_LEN-1);
-            //parseSetResolutionCmd(buff);
+            readLine(serial, buff, CLIENT_BUFF_LEN-1);
+            //parseSetResolutionCmd(serial, buff);
 
             if(sscanf(buff, "%ld %ld", &az, &alt) != 2)
             {
@@ -427,13 +427,13 @@ void SerialProcessCommands(Stream *serial)
             AZ_Res = dsc_GetAzRes();
             ALT_Res = dsc_GetAltRes();
             //Report the encoder resolution 
-            printHexEncoderValue(abs(ALT_Res));
-            printHexEncoderValue(abs(AZ_Res));
+            printHexEncoderValue(serial, abs(ALT_Res));
+            printHexEncoderValue(serial, abs(AZ_Res));
             break; 
         case 'y': 
             //Report the encoder positions
-            printHexEncoderValue(abs(ALT_Pos));
-            printHexEncoderValue(abs(AZ_Pos));
+            printHexEncoderValue(serial, abs(ALT_Pos));
+            printHexEncoderValue(serial, abs(AZ_Pos));
             break;
         case 'p': 
             //Report the number of encoder errors and reset the counter to zero
