@@ -75,3 +75,5 @@ Note: Battery is not supported yet, use USB power supply
 To AS5600 encoder use 3.3V power supply in 5V pin due to I2C pull-up resistots to 5V pin. ESP32 is not 5V tolerant.
 
 25/05/2020 >> Added Tx power WiFi
+
+28/05/2020 >> V2.0.0.2 >> Solved Ek's set resolution
