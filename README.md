@@ -31,7 +31,7 @@ Support WiFi ,Bluetooth and Serial (USB).
 
 Skysafari, Ascom and Stellarium compatible.
 
-Support AS5600 and AS5048 encoders. 
+Support AS5600 (AS5048 encoders: soon). 
 
 Quadrature encoders support are coming.
 
