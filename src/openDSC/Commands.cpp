@@ -421,7 +421,7 @@ void SerialProcessCommands(Stream *serial)
             b1 = serial->read();
             b2 = serial->read();
             AZ_Res = b2*256+b1;
-            serial->print("\r"); 
+            serial->print("r");
             dsc_SetAltAzRes(ALT_Res, AZ_Res);
             break;           
         case 'h': 
