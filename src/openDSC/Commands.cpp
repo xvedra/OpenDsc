@@ -265,7 +265,7 @@ void SerialProcessCommands(Stream *serial)
             long az, alt;
             
             readLine(serial, buff, CLIENT_BUFF_LEN-1);
-            //parseSetResolutionCmd(serial, buff);
+            parseSetResolutionCmd(buff);
 
             if(sscanf(buff, "%ld %ld", &az, &alt) != 2)
             {
