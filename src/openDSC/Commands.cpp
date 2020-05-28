@@ -192,11 +192,11 @@ void parseEkSetResolutionCmd(Stream *serial)
 {
   byte b1 = serial->read();
   byte b2 = serial->read();
-  ALT_Res = b2*256+b1;
+  ALT_Res = (uint16_t)b2*256+b1;
 
   b1 = serial->read();
   b2 = serial->read();
-  AZ_Res = b2*256+b1;
+  AZ_Res = (uint16_t)b2*256+b1;
 
   dsc_SetAltAzRes(ALT_Res, AZ_Res);
   
@@ -417,10 +417,10 @@ void SerialProcessCommands(Stream *serial)
             byte b1, b2;
             b1 = serial->read();
             b2 = serial->read();            
-            ALT_Res = b2*256+b1;          
+            ALT_Res = (uint16_t)b2*256+b1;          
             b1 = serial->read();
             b2 = serial->read();
-            AZ_Res = b2*256+b1;
+            AZ_Res = (uint16_t)b2*256+b1;
             serial->print("r");
             dsc_SetAltAzRes(ALT_Res, AZ_Res);
             break;           
