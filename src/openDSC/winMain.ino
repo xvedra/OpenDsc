@@ -14,6 +14,7 @@ void winMain(byte section)
   static unsigned long int LastGetPorReq = 0;
   static unsigned int currentTextColor = 0;   
   bool draw = 0;
+  static time_t lastMillis = 0;
 
   if(section == SECTION_START)
   {
@@ -22,6 +23,8 @@ void winMain(byte section)
     winMainLastBatteryVoltage = -1.0;    
     TimerDrawData = InitTimer(1000);
     draw = 1;
+    lastMillis = 0;
+    
     
     tft.fillScreen(TFT_BLACK);      
     drawHead(SECTION_START);
@@ -61,7 +64,11 @@ void winMain(byte section)
     tft.setTextColor(DarkerRed);
     tft.drawString("RA/AZ:", 5, 25+32);
     tft.drawString("DEC/ALT:", 5, 25+32*2);
+    #ifdef USE_BATT
     tft.drawString("BAT:", 5, 25+32*3); 
+    #else
+    tft.drawString("TIME:", 5, 25+32*3); 
+    #endif
     tft.setTextSize(3);
   }
 
@@ -111,6 +118,7 @@ void winMain(byte section)
     }
   
     // Zone C
+    #ifdef USE_BATT
     uint16_t v = analogRead(ADC_PIN);
     float battery_voltage = ((float)v / 4095.0) * 2.0 * 3.3 * (vref / 1000.0);
     if(battery_voltage != winMainLastBatteryVoltage)
@@ -127,6 +135,20 @@ void winMain(byte section)
       sprintf(buff, "%01.2fV", battery_voltage);
       tft.drawString(buff, 160-8, 20 + 32 * 3);  
     }
+    #else
+    if(millis() != lastMillis)
+    {
+      byte sec, min, hours;
+      lastMillis = millis();
+      sec = (lastMillis/1000) % 60;
+      min = (lastMillis/(60*1000) % 60);
+      hours = (lastMillis/(60*60*1000)) % 24;
+      tft.setTextSize(3);
+      tft.setTextDatum(MC_DATUM);  
+      sprintf(buff, "%02u:%02u:%02u", hours, min, sec);
+      tft.drawString(buff, 160-8, 20 + 32 * 3); 
+    }
+    #endif
   
   /*
     // Zone E: Graph

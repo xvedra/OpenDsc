@@ -4,6 +4,7 @@
 #define USE_SAVE_AT_EXIT_MENU //Upload EEPRON only whet exit from MainMenu
 
 // Normally undefined:
+//#define USE_BATT
 //#define USE_L200 /* only for awner development propossal */
 //#define USE_DEBUG //Comment to enable communications over USB
 #define SLOW_BOOT 1 //1:slow 0:fast
