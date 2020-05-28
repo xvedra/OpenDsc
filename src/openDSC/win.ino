@@ -28,7 +28,7 @@ void winLoop()
       stt++;      
       break;
     case 3:
-      winMain(SECTION_RUN);
+      if(isIdle) winMain(SECTION_RUN);
       if(eventsReadCurrentEvent() == EVENT_BTN_DWN_LONG_CLICK)
       {
         winMain(SECTION_END);
@@ -45,7 +45,7 @@ void winLoop()
       stt++;
       break;
     case 5:
-      winDemo(SECTION_RUN);
+      if(isIdle) winDemo(SECTION_RUN);
       if(eventsReadCurrentEvent() == EVENT_BTN_DWN_LONG_CLICK)
       {
         stt = 2;
