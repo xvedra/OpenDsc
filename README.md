@@ -27,8 +27,6 @@ https://github.com/LennartHennigs/Button2
 
 Here another DSC over ESP32-TTGO, a low cost development tft board.
 
-See commit file for updates
-
 Support WiFi ,Bluetooth and Serial (USB).
 
 Skysafari, Ascom and Stellarium compatible.
@@ -47,4 +45,4 @@ for GSO 10":    https://www.thingiverse.com/thing:4221918
 
 case:           https://www.thingiverse.com/thing:4358327
 
-
+(See commit file for updates)
