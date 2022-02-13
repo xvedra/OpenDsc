@@ -46,7 +46,9 @@ for GSO 10":    https://www.thingiverse.com/thing:4221918
 case:           https://www.thingiverse.com/thing:4358327
 
 13/02/2022 Be aware!!!!!
+
 Some Power Banks generate electrical noise and interferes with I2C communication.
+
 Keep it away from wires and controller (ESP32).
 
 (See commit file for updates)
