@@ -1,4 +1,13 @@
-# OpenDSC 2.0.2 (beta version)
+# OpenDSC 2.0.2
+
+*****************************************************************
+CAUTION: Does not work with Skysafari 7 Plus !!!!!!!!
+
+(Something is wrong in this version)
+
+Works fine with Skysafari 5 Plus
+
+*****************************************************************
 ESP32 TTGO Digital Setting  Circles 
 
 ![Image description](https://github.com/xvedra/OpenDsc/blob/master/screenshots/MainWin.jpg)
