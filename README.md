@@ -8,6 +8,17 @@ CAUTION: Does not work with Skysafari 7 Plus !!!!!!!!
 Works fine with Skysafari 5 Plus
 
 *****************************************************************
+
+If you are owner of SkySafari 5 Plus and you cannot download the OBB file from its website (https://support.simulationcurriculum.com/hc/en-us/articles/115004749607-Data-Download-for-SkySafari-for-Android), here you can download it:
+
+https://drive.google.com/drive/folders/1J6c5GILhAsH-bUJ5VxNBshDk-nba_C--?usp=sharing
+
+Copy the file you downloaded in:
+
+SkySafari Plus: <top level of SD card>/Android/obb/com.simulationcurriculum.skysafari5plus/
+  
+  *****************************************************************
+
 ESP32 TTGO Digital Setting  Circles 
 
 ![Image description](https://github.com/xvedra/OpenDsc/blob/master/screenshots/MainWin.jpg)
