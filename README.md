@@ -31,13 +31,19 @@ https://github.com/synfinatic/teensy-dsc
 
 https://eksfiles.net/digital-setting-circles/bluetooth-digital-setting-circles/
 
+****************  SCHEME ***********************
+ESP32 Expressif Package 2.0.12 (Note: Package 3.x.x Fail!)
+Board: ESP32 Dev Module
+Partition escheme: No OTA (2 MB APP/2 MB SPIFFS)
+************************************************
+
 Dependencies:
 
-https://github.com/Bodmer/TFT_eSPI
-
-https://github.com/Xinyuan-LilyGO/TTGO-T-Display
+https://github.com/Bodmer/TFT_eSPI or https://github.com/Xinyuan-LilyGO/TTGO-T-Display
 
 https://github.com/neu-rah/ArduinoMenu
+
+https://github.com/neu-rah/streamFlow
 
 https://github.com/LennartHennigs/Button2
 
