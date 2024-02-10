@@ -32,9 +32,13 @@ https://github.com/synfinatic/teensy-dsc
 https://eksfiles.net/digital-setting-circles/bluetooth-digital-setting-circles/
 
 ****************  SCHEME ***********************
-ESP32 Expressif Package 2.0.12 (Note: Package 3.x.x Fail!)
+
+Arduino ESP32 Expressif Package 2.0.12 (Note: Package 3.x.x Fail!)
+
 Board: ESP32 Dev Module
+
 Partition escheme: No OTA (2 MB APP/2 MB SPIFFS)
+
 ************************************************
 
 Dependencies:
