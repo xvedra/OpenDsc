@@ -61,9 +61,15 @@ Support WiFi ,Bluetooth and Serial (USB).
 
 Skysafari, Ascom and Stellarium compatible.
 
-Only support AS5600. 
+Only support AS5600 sensor (x2):
 
-Very important: I2C wires need 4K7 pullup resistors!!!
+Sensor 1: SCL1_PIN = 13 and SDA1_PIN = 15
+
+Sensor 2: SCL2_PIN = 32 and SDA2_PIN = 33
+
+>>>>> Very important: I2C wires need 4K7 pullup resistors!!!
+
+Sensor Vcc = 3.3V. Only four wires for each sensor (Vcc, GND, SCL and SDA)
 
 Encoders system can downloaded from :
 
