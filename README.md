@@ -1,7 +1,7 @@
 # OpenDSC 2.0.2
 
 *****************************************************************
-CAUTION: Does not work with Skysafari 7 Plus !!!!!!!!
+CAUTION: Does not work with Skysafari 7 Plus (...2023)!!!!!!!!
 
 (Something is wrong in this version)
 
