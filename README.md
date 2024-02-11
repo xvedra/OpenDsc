@@ -33,7 +33,7 @@ https://eksfiles.net/digital-setting-circles/bluetooth-digital-setting-circles/
 
 ****************  SCHEME ***********************
 
-Arduino ESP32 Expressif Package 2.0.12 (Note: Package 3.x.x Fail!)
+Arduino ESP32 Expressif Package 2.x.x (Note: Package 3.x.x Fail!)
 
 Board: ESP32 Dev Module
 
