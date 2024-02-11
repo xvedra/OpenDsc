@@ -67,7 +67,7 @@ Sensor 1: SCL1_PIN = 13 and SDA1_PIN = 15
 
 Sensor 2: SCL2_PIN = 32 and SDA2_PIN = 33
 
->>>>> Very important: I2C wires need 4K7 pullup resistors!!!
+Very important: I2C wires need 4K7 pullup (to Vcc) resistors!!!
 
 Sensor Vcc = 3.3V. Only four wires for each sensor (Vcc, GND, SCL and SDA)
 
