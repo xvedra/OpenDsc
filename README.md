@@ -61,9 +61,9 @@ Support WiFi ,Bluetooth and Serial (USB).
 
 Skysafari, Ascom and Stellarium compatible.
 
-Support AS5600 (AS5048 encoders: soon). 
+Only support AS5600. 
 
-Quadrature encoders support are coming.
+Very important: I2C wires need 4K7 pullup resistors!!!
 
 Encoders system can downloaded from :
 
