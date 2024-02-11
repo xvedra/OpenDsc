@@ -3,7 +3,7 @@
 *****************************************************************
 CAUTION: Does not work with Skysafari 7 Plus (...2023)!!!!!!!!
 
-(Something is wrong in this version)
+(Something is wrong in this version. Perhaps now is working...)
 
 Works fine with Skysafari 5 Plus
 
