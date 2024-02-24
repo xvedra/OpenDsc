@@ -91,4 +91,6 @@ Some Power Banks generate electrical noise and interferes with I2C communication
 
 Keep it away from wires and controller (ESP32).
 
+Keep low power: disable Wifi in configuration if you are going to use Bluetooth mode. 
+
 (See commit file for updates)
