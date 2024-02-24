@@ -1,11 +1,15 @@
 # OpenDSC 2.0.2
 
 *****************************************************************
-CAUTION: Does not work with Skysafari 7 Plus (...2023)!!!!!!!!
+NOTE: 
+
+Bluetooth mode: Does not work with Skysafari 7 Plus/Pro (...2023), only Wifi mode works.
 
 (Something is wrong in this version. Perhaps now is working...)
 
-Works fine with Skysafari 5 Plus
+Works fine (Bluetooth and Wifi) with Skysafari 5 Plus/Pro.
+
+It is very likely to work with Skysafari 6 Plus/Pro
 
 *****************************************************************
 
